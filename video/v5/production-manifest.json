@@ -7,7 +7,19 @@
     "maximumTotalCredits": 16,
     "duration": 6,
     "resolution": "720p",
-    "aspectRatio": "16:9"
+    "aspectRatio": "16:9",
+    "status": "completed",
+    "imageTaskId": "7e36eba6-d5b7-4f41-8754-d4d87b1f0334",
+    "videoTaskId": "d3777abf-d7b8-48a2-9e57-8733f3bd4a30",
+    "sourceImage": "generated/pilot-casting.png",
+    "sourceVideo": "generated/pilot-dialogue-hoteliers.mp4",
+    "editingVideo": "generated/pilot-dialogue-hoteliers-sans-audio.mp4",
+    "contactSheet": "generated/pilot-dialogue-contact-sheet.jpg",
+    "actualDurationSeconds": 6.04,
+    "actualResolution": "1276x720",
+    "videoCodec": "h264",
+    "visualQc": "approved",
+    "visualQcNotes": "Casting stable, natural eye contact, controlled framing, no visible text or logo, no black frame. Generated audio removed from the editing copy."
   },
   "agents": [
     "script-and-compliance",
