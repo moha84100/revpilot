@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="RevPilot Voice, réceptionniste IA vocale pour hôtels." />
+    <title>RevPilot Voice</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">≋</span><span>RevPilot <b>Voice</b></span></div>
+      <div class="hotel-card"><span>GH</span><div><strong>Grand Hôtel Démo</strong><small>Orange · 48 chambres</small></div></div>
+      <nav>
+        <a class="active" href="#dashboard"><i>⌂</i> Vue d’ensemble</a>
+        <a href="#simulator"><i>◉</i> Simulateur d’appel</a>
+        <a href="#requests"><i>▣</i> Demandes</a>
+        <a href="#configuration"><i>⚙</i> Configuration</a>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="security-card"><span>✓</span><div><strong>Validation humaine</strong><p>Aucune réservation n’est confirmée automatiquement dans la démo.</p></div></div>
+      <small class="version">MVP pilote · v0.1</small>
+    </aside>
+
+    <main id="dashboard">
+      <header class="topbar">
+        <div><p class="eyebrow">Réception intelligente</p><h1>Bonjour, voici l’activité de votre agent vocal.</h1></div>
+        <div class="top-actions"><span id="modeBadge" class="mode-badge"><i></i> Chargement…</span><button class="primary" data-start-call>Aperçu technique</button></div>
+      </header>
+
+      <section class="status-banner" id="statusBanner">
+        <span class="pulse">●</span><div><strong>Les vrais appels ne sont pas encore activés</strong><p>La voix du navigateur est seulement un aperçu technique. La voix naturelle nécessite OpenAI Realtime et un numéro Twilio.</p></div>
+        <button data-start-call>Voir l’aperçu →</button>
+      </section>
+
+      <section class="kpis">
+        <article><span class="kpi-icon violet">☎</span><small>Appels aujourd’hui</small><strong id="callsCount">0</strong><p>simulations incluses</p></article>
+        <article><span class="kpi-icon blue">◷</span><small>Demandes créées</small><strong id="requestsCount">0</strong><p>à valider par la réception</p></article>
+        <article><span class="kpi-icon green">✓</span><small>Taux de réponse</small><strong>100 %</strong><p>sur le serveur local</p></article>
+        <article><span class="kpi-icon amber">↗</span><small>Transferts humains</small><strong id="handoffsCount">0</strong><p>escalades enregistrées</p></article>
+      </section>
+
+      <section class="main-grid">
+        <article class="panel activity-panel">
+          <div class="panel-head"><div><p class="eyebrow">Derniers échanges</p><h2>Activité récente</h2></div><button class="text-button" id="refreshButton">Actualiser</button></div>
+          <div id="activityList" class="activity-list"><div class="empty"><span>☎</span><strong>Aucun appel pour le moment</strong><p>Lance une simulation pour voir apparaître la conversation.</p></div></div>
+        </article>
+        <article class="panel agent-panel">
+          <p class="eyebrow">Comportement de l’agent</p><h2>Ce que l’agent peut faire</h2>
+          <div class="capabilities">
+            <div><span>✓</span><p><strong>Répondre naturellement</strong><small>Français, anglais et espagnol</small></p></div>
+            <div><span>✓</span><p><strong>Vérifier le PMS</strong><small>Disponibilités et prix recalculés</small></p></div>
+            <div><span>✓</span><p><strong>Proposer les options</strong><small>Petit-déjeuner, parking, départ tardif</small></p></div>
+            <div><span>✓</span><p><strong>Créer une demande</strong><small>Confirmation finale par la réception</small></p></div>
+            <div><span>✓</span><p><strong>Transférer à un humain</strong><small>À la demande ou en cas d’incertitude</small></p></div>
+          </div>
+          <div class="guardrail"><span>!</span><p><strong>Garde-fou actif</strong>L’agent ne collecte jamais de carte bancaire et n’invente jamais un tarif.</p></div>
+        </article>
+      </section>
+
+      <section class="section" id="requests">
+        <div class="section-head"><div><p class="eyebrow">À traiter</p><h2>Demandes de réservation</h2></div><span class="soft-badge">Validation réception obligatoire</span></div>
+        <div class="panel table-panel"><table><thead><tr><th>Référence</th><th>Client</th><th>Séjour</th><th>Chambre</th><th>Montant annoncé</th><th>Statut</th></tr></thead><tbody id="requestsBody"><tr><td colspan="6" class="table-empty">Aucune demande enregistrée.</td></tr></tbody></table></div>
+      </section>
+
+      <section class="section config-grid" id="configuration">
+        <article class="panel config-card"><span class="config-icon">✦</span><div><h3>OpenAI Realtime</h3><p>Compréhension et conversation audio naturelle.</p><b id="openaiStatus">Non configuré</b></div></article>
+        <article class="panel config-card"><span class="config-icon">☎</span><div><h3>Téléphonie Twilio</h3><p>Numéro, appels entrants et transfert humain.</p><b id="twilioStatus">Non configuré</b></div></article>
+        <article class="panel config-card"><span class="config-icon">▤</span><div><h3>Connecteur PMS</h3><p>Disponibilités, prix et demandes de réservation.</p><b id="pmsStatus" class="connected">Démo connectée</b></div></article>
+      </section>
+      <footer>RevPilot Voice · MVP pilote · Les appels réels nécessitent des comptes fournisseurs configurés.</footer>
+    </main>
+
+    <div class="call-overlay" id="callOverlay" aria-hidden="true">
+      <section class="call-modal" id="simulator">
+        <div class="call-header"><div><span class="live-dot"></span><p><strong>Aperçu technique — voix non définitive</strong><small id="callTimer">00:00 · navigateur, pas un appel téléphonique</small></p></div><button id="closeCall" aria-label="Fermer">×</button></div>
+        <div class="call-stage">
+          <div class="voice-orb"><i></i><span>RV</span></div>
+          <p class="speaking-label" id="speakingLabel">Agent prêt</p>
+          <h2>Grand Hôtel Démo</h2><small>Assistante virtuelle RevPilot</small>
+        </div>
+        <div class="quick-prompts" id="quickPrompts">
+          <button data-message="Je cherche une chambre du 20/08/2026 au 22/08/2026 pour 2 personnes.">Vérifier une chambre</button>
+          <button data-message="Quel est le prix du parking et du petit-déjeuner ?">Demander les options</button>
+          <button data-message="Je souhaite parler à la réception.">Transférer l’appel</button>
+        </div>
+        <div class="transcript" id="transcript"></div>
+        <div class="tool-trace" id="toolTrace"></div>
+        <form class="call-input" id="callForm"><button type="button" id="micButton" class="mic" title="Parler">●</button><input id="messageInput" autocomplete="off" placeholder="Écrire ou utiliser le micro…" /><button type="submit" class="send">Envoyer</button></form>
+        <div class="call-footer"><button id="endCall" class="hangup">☎</button><span>Terminer la simulation</span></div>
+      </section>
+    </div>
+    <div id="toast" class="toast"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

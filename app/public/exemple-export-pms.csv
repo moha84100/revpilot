@@ -1,0 +1,6 @@
+date,chambres_disponibles,chambres_vendues,chiffre_affaires,reservations_7j,vendues_n_1,prix_actuel,annulations_7j,chambres_groupe,chambres_directes,cout_commissions,prix_concurrents,evenement,affluence_evenement,impact_evenement,evenement_n_1,affluence_evenement_n_1,impact_evenement_n_1
+2026-07-15,48,36,3888,7,31,108,1,4,14,410,105,,,,,,
+2026-07-16,48,39,4212,8,33,108,2,6,15,445,107,Concert au théâtre antique,8500,92,,0,0
+2026-07-17,48,44,5544,10,36,126,1,8,16,590,121,,,,,,
+2026-07-18,48,51,6426,9,38,126,0,10,18,680,128,,,,,,
+2026-07-19,48,32,3264,4,38,102,5,2,12,350,96,,,0,Festival exceptionnel N-1,11000,95

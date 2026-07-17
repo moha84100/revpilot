@@ -1,0 +1,14 @@
+{
+  "name": "revpilot-voice",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.mjs",
+    "dev": "node --watch server/index.mjs",
+    "test": "node --test server/*.test.mjs server/pms/*.test.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}

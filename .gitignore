@@ -1,0 +1,23 @@
+.tools/
+.video-tools/
+app/node_modules/
+voice-agent/node_modules/
+app/dist/
+app/coverage/
+*.tsbuildinfo
+.DS_Store
+*.log
+~$*
+.env.local
+
+# Données commerciales et exports locaux non destinés au dépôt public
+/CRM_HOTELS_*
+/CRM_PROSPECTION_*
+/HOTEL_REVENUE_IMPORT_NOTION.zip
+/notion-import/
+/README_CRM.md
+/build_crm_xlsx.py
+/build_notion_imports.py
+
+# Médias de production trop lourds pour GitHub
+/video/
