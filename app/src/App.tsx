@@ -23,6 +23,8 @@ import {
   defaultNotificationPreferences, notificationsFromRows, readStored,
   type InterfaceMode, type NotificationPreferences, type PricingDecision, type RevNotification,
 } from './lib/workflow'
+import { VideoPresentationBadge } from './presentation/VideoPresentationBadge'
+import { VIDEO_REFERENCE_DATE, isVideoPresentation } from './presentation/videoPresentation'
 
 type Filter = 'all' | Signal
 
@@ -49,8 +51,9 @@ function downloadText(content: string, filename: string, type = 'text/csv;charse
 
 function App() {
   const demoParams = useMemo(() => new URLSearchParams(window.location.search), [])
+  const videoPresentation = useMemo(() => isVideoPresentation(window.location.search), [])
   const fileInput = useRef<HTMLInputElement>(null)
-  const [rows, setRows] = useState(() => analyzeData(initialDataset.dailyData))
+  const [rows, setRows] = useState(() => analyzeData(initialDataset.dailyData, videoPresentation ? VIDEO_REFERENCE_DATE : undefined))
   const [sourceName, setSourceName] = useState('Scénario hôtelier volumétrique')
   const [recordCount, setRecordCount] = useState(initialDataset.reservations.length)
   const [rawReservations, setRawReservations] = useState(initialDataset.reservations)
@@ -64,10 +67,10 @@ function App() {
   const [presentationOpen, setPresentationOpen] = useState(() => demoParams.get('demoPanel') === 'presentation')
   const [mobileNav, setMobileNav] = useState(false)
   const [interfaceMode, setInterfaceMode] = useState<InterfaceMode>(() => demoParams.get('demoMode') === 'advanced' ? 'advanced' : readStored('revpilot-mode', 'simple'))
-  const [decisions, setDecisions] = useState<Record<string, PricingDecision>>(() => readStored('revpilot-decisions', {}))
+  const [decisions, setDecisions] = useState<Record<string, PricingDecision>>(() => videoPresentation ? {} : readStored('revpilot-decisions', {}))
   const [notificationOpen, setNotificationOpen] = useState(() => demoParams.get('demoPanel') === 'notifications')
   const [settingsOpen, setSettingsOpen] = useState(() => demoParams.get('demoPanel') === 'settings')
-  const [readNotifications, setReadNotifications] = useState<string[]>(() => readStored('revpilot-read-notifications', []))
+  const [readNotifications, setReadNotifications] = useState<string[]>(() => videoPresentation ? [] : readStored('revpilot-read-notifications', []))
   const [notificationPreferences, setNotificationPreferences] = useState<NotificationPreferences>(() => ({ ...defaultNotificationPreferences, ...readStored('revpilot-notification-preferences', {}) }))
   const [notificationProvider, setNotificationProvider] = useState<NotificationProviderStatus | null>(null)
   const [notificationSending, setNotificationSending] = useState<ExternalChannel | 'alert' | null>(null)
@@ -90,6 +93,10 @@ function App() {
   const visibleRows = filter === 'all' ? analysisRows : analysisRows.filter((row) => row.signal === filter)
   const occupancyGap = summary.averageOccupancy - summary.lastYearAverageOccupancy
   const topInsight = alerts[0]
+  const priorityIncreaseDate = alerts.find((row) => row.signal === 'increase')?.date
+  const presentationAlerts = videoPresentation && priorityIncreaseDate
+    ? [alerts.find((row) => row.date === priorityIncreaseDate)!, ...alerts.filter((row) => row.date !== priorityIncreaseDate)]
+    : alerts
   const notifications = useMemo(() => notificationsFromRows(analysisRows), [analysisRows])
   const unreadCount = notifications.filter((item) => !readNotifications.includes(item.id)).length
   const decisionHistory = useMemo(() => Object.values(decisions).sort((a, b) => b.decidedAt.localeCompare(a.decidedAt)), [decisions])
@@ -103,7 +110,9 @@ function App() {
   }, [rawReservations])
 
   useEffect(() => {
-    if (demoParams.get('demoPanel') === 'decision' && alerts[0]) setSelected(alerts[0])
+    if (demoParams.get('demoPanel') === 'decision' && alerts[0]) {
+      setSelected(videoPresentation ? alerts.find((row) => row.signal === 'increase') ?? alerts[0] : alerts[0])
+    }
     if (demoParams.get('demoSection') === 'advanced') {
       window.setTimeout(() => document.querySelector('#advanced')?.scrollIntoView(), 700)
     }
@@ -112,22 +121,25 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (videoPresentation) return
     fetchPmsStatus().then((status) => {
       setPmsStatus(status)
       setActivePms(status.activeProvider)
     }).catch(() => setPmsStatus(null))
-  }, [])
+  }, [videoPresentation])
 
   useEffect(() => {
+    if (videoPresentation) return
     fetchNotificationStatus().then(setNotificationProvider).catch(() => setNotificationProvider(null))
-  }, [])
+  }, [videoPresentation])
 
-  useEffect(() => window.localStorage.setItem('revpilot-mode', JSON.stringify(interfaceMode)), [interfaceMode])
-  useEffect(() => window.localStorage.setItem('revpilot-decisions', JSON.stringify(decisions)), [decisions])
-  useEffect(() => window.localStorage.setItem('revpilot-read-notifications', JSON.stringify(readNotifications)), [readNotifications])
-  useEffect(() => window.localStorage.setItem('revpilot-notification-preferences', JSON.stringify(notificationPreferences)), [notificationPreferences])
+  useEffect(() => { if (!videoPresentation) window.localStorage.setItem('revpilot-mode', JSON.stringify(interfaceMode)) }, [interfaceMode, videoPresentation])
+  useEffect(() => { if (!videoPresentation) window.localStorage.setItem('revpilot-decisions', JSON.stringify(decisions)) }, [decisions, videoPresentation])
+  useEffect(() => { if (!videoPresentation) window.localStorage.setItem('revpilot-read-notifications', JSON.stringify(readNotifications)) }, [readNotifications, videoPresentation])
+  useEffect(() => { if (!videoPresentation) window.localStorage.setItem('revpilot-notification-preferences', JSON.stringify(notificationPreferences)) }, [notificationPreferences, videoPresentation])
 
   useEffect(() => {
+    if (videoPresentation) return
     fetchCityEvents({
       latitude: 44.1363,
       longitude: 4.8075,
@@ -141,7 +153,7 @@ function App() {
         setRows((current) => analyzeData(enrichWithLiveEvents(current, payload.events)))
       }
     }).catch((error) => setEventApiError(error instanceof Error ? error.message : 'Serveur événementiel indisponible.'))
-  }, [])
+  }, [videoPresentation])
 
   const showToast = (message: string) => {
     setToast(message)
@@ -352,7 +364,7 @@ function App() {
               <button className={interfaceMode === 'simple' ? 'active' : ''} onClick={() => setInterfaceMode('simple')}>Simple</button>
               <button className={interfaceMode === 'advanced' ? 'active' : ''} onClick={() => setInterfaceMode('advanced')}><Settings2 size={13} /> Avancé</button>
             </div>
-            <button className="notification-button" onClick={() => setNotificationOpen(true)} aria-label={`${unreadCount} notifications non lues`}><Bell size={17} />{unreadCount > 0 && <b>{unreadCount}</b>}</button>
+            <button className="notification-button" data-video="notifications-trigger" onClick={() => setNotificationOpen(true)} aria-label={`${unreadCount} notifications non lues`}><Bell size={17} />{unreadCount > 0 && <b>{unreadCount}</b>}</button>
             <button className="btn secondary" onClick={() => setPresentationOpen(true)}><Presentation size={16} /> Présenter</button>
             <button className="btn secondary compact" onClick={resetDemo} title="Recharger la démo"><RefreshCw size={16} /></button>
             <button className="btn primary" onClick={() => fileInput.current?.click()}><Upload size={16} /> Importer un export PMS</button>
@@ -364,19 +376,19 @@ function App() {
           <span className="source-check"><Check size={15} /></span>
           <div><strong>{sourceName}</strong><p>{recordCount.toLocaleString('fr-FR')} enregistrements · {rows.length} dates disponibles · recommandations recalculées automatiquement</p></div>
           <div className="horizon-control"><span>Horizon</span><select value={horizon} onChange={(event) => setHorizon(Number(event.target.value))}>{[30,60,90,180].filter((value) => value <= rows.length).map((value) => <option key={value} value={value}>{value} jours</option>)}</select></div>
-          <span className="local-badge"><ShieldCheck size={13} /> {activePms ? 'Lecture PMS sécurisée' : 'Analyse locale'}</span>
+          {videoPresentation ? <VideoPresentationBadge /> : <span className="local-badge"><ShieldCheck size={13} /> {activePms ? 'Lecture PMS sécurisée' : 'Analyse locale'}</span>}
         </div>
 
-        <section className={`pms-strip ${activePms ? 'connected' : ''}`}>
+        {!videoPresentation && <section className={`pms-strip ${activePms ? 'connected' : ''}`}>
           <div className="pms-strip-title"><Database size={17} /><span><strong>{activePms === 'mews' ? 'Mews connecté' : activePms === 'demo' ? 'PMS de démonstration connecté' : 'Aucun PMS connecté'}</strong><small>{activePms ? 'Données synchronisées en lecture seule · aucun prix envoyé au PMS' : 'Connectez Mews pour remplacer l’import manuel du fichier CSV.'}</small></span></div>
           <div className="pms-strip-actions">
             {pmsWarnings.length > 0 && <span className="pms-warning">{pmsWarnings[0]}</span>}
             <button className="btn secondary" onClick={() => setPmsOpen(true)}><Database size={15} /> {activePms ? 'Gérer la connexion' : 'Connecter un PMS'}</button>
             {activePms && <button className="btn primary" disabled={Boolean(pmsSyncing)} onClick={() => handlePmsSync(activePms as 'mews' | 'demo')}><RefreshCw size={15} className={pmsSyncing ? 'spin' : ''} /> Synchroniser</button>}
           </div>
-        </section>
+        </section>}
 
-        <section className={`event-api-strip ${eventApi?.mode === 'live' ? 'live' : eventApiError ? 'error' : 'simulation'}`}>
+        {!videoPresentation && <section className={`event-api-strip ${eventApi?.mode === 'live' ? 'live' : eventApiError ? 'error' : 'simulation'}`}>
           <div className="event-api-title"><CalendarDays size={16} /><span><strong>{eventApi?.mode === 'live' ? 'Événements réels connectés' : eventApiError ? 'Serveur événementiel indisponible' : 'Événements en mode simulation'}</strong><small>{eventApi?.mode === 'live' ? `${eventApi.events.length} événements récupérés autour d’Orange` : eventApiError || 'Ajoutez au moins une clé API pour remplacer les événements fictifs.'}</small></span></div>
           <div className="provider-list">
             {(eventApi?.providers ?? [
@@ -385,7 +397,7 @@ function App() {
               { name: 'PredictHQ', status: 'missing_key', count: 0 },
             ]).map((provider) => <span key={provider.name} className={provider.status}><i />{provider.name}{provider.status === 'connected' ? ` · ${provider.count}` : provider.status === 'error' ? ' · erreur' : ' · clé absente'}</span>)}
           </div>
-        </section>
+        </section>}
 
         <section className="kpi-grid" aria-label="Indicateurs clés">
           <KpiCard label="Occupation moyenne" value={formatPercent(summary.averageOccupancy)} icon={<Gauge />} tone="blue">
@@ -393,7 +405,7 @@ function App() {
           </KpiCard>
           <KpiCard label="Chiffre d’affaires prévu" value={formatCurrency(summary.forecastRevenue)} icon={<Euro />} tone="purple">Sur les {analysisRows.length} prochaines dates</KpiCard>
           <KpiCard label="Dates à surveiller" value={String(summary.alerts)} icon={<AlertTriangle />} tone="amber" featured>{summary.overbookingDays} surbookings · {summary.increases} hausses · {summary.decreases} baisses</KpiCard>
-          <KpiCard label="Potentiel estimé" value={`+${formatCurrency(summary.potentialRevenue)}`} icon={<TrendingUp />} tone="green">Estimation à valider avec l’hôtelier</KpiCard>
+          <KpiCard videoId="potential-kpi" label="Potentiel estimé" value={`+${formatCurrency(summary.potentialRevenue)}`} icon={<TrendingUp />} tone="green">Estimation à valider avec l’hôtelier</KpiCard>
         </section>
 
         {interfaceMode === 'advanced' && <section className="operational-grid" aria-label="Indicateurs de performance hôtelière">
@@ -410,7 +422,7 @@ function App() {
             <button className="link-button" onClick={() => document.querySelector('#calendar')?.scrollIntoView()}>Voir les {analysisRows.length} dates <ArrowRight size={14} /></button>
           </div>
           <div className="alert-list">
-            {alerts.slice(0, interfaceMode === 'simple' ? 4 : 6).map((row) => <AlertCard key={row.date} row={row} decision={decisions[row.date]} onClick={() => setSelected(row)} />)}
+            {presentationAlerts.slice(0, interfaceMode === 'simple' ? 4 : 6).map((row) => <AlertCard key={row.date} videoId={row.date === priorityIncreaseDate ? 'priority-increase' : undefined} row={row} decision={decisions[row.date]} onClick={() => setSelected(row)} />)}
             {!alerts.length && <div className="empty-state"><Check size={24} /><strong>Aucune action urgente</strong><p>Les dates analysées évoluent dans la zone attendue.</p></div>}
           </div>
         </section>
@@ -534,8 +546,8 @@ function PmsConnectionModal({ status, syncing, error, onSync, onImport, onClose 
   </section></div>
 }
 
-function KpiCard({ label, value, icon, tone, featured, children }: { label: string; value: string; icon: React.ReactNode; tone: string; featured?: boolean; children: React.ReactNode }) {
-  return <article className={`kpi-card ${featured ? 'featured' : ''}`}>
+function KpiCard({ label, value, icon, tone, featured, videoId, children }: { label: string; value: string; icon: React.ReactNode; tone: string; featured?: boolean; videoId?: string; children: React.ReactNode }) {
+  return <article className={`kpi-card ${featured ? 'featured' : ''}`} data-video={videoId}>
     <div className="kpi-label"><span>{label}</span><span className={`kpi-icon ${tone}`}>{icon}</span></div>
     <strong className="kpi-value">{value}</strong>
     <p>{children}</p>
@@ -553,9 +565,9 @@ function SignalBadge({ signal, label }: { signal: Signal; label: string }) {
   return <span className={`signal ${signal}`}><Icon size={12} />{label}</span>
 }
 
-function AlertCard({ row, decision, onClick }: { row: AnalyzedDate; decision?: PricingDecision; onClick: () => void }) {
+function AlertCard({ row, decision, onClick, videoId }: { row: AnalyzedDate; decision?: PricingDecision; onClick: () => void; videoId?: string }) {
   const date = new Date(`${row.date}T12:00:00`)
-  return <button className={`alert-card ${row.signal}`} onClick={onClick}>
+  return <button className={`alert-card ${row.signal}`} data-video={videoId} onClick={onClick}>
     <span className="date-tile"><b>{date.getDate()}</b><small>{formatDate(row.date, { month: 'short' })}</small></span>
     <span className="alert-metric"><b>{formatPercent(row.occupancy)} occupé</b><small>{row.roomsSold}/{row.roomsAvailable} chambres vendues</small></span>
     <span className="alert-reason"><b>{row.signalLabel}</b><small>{row.reason}</small></span>
@@ -580,10 +592,10 @@ function DetailDrawer({ row, decision, onClose, onDecision }: { row: AnalyzedDat
     decidedAt: new Date().toISOString(),
   })
   return <div className="overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-    <aside className="drawer">
+    <aside className="drawer" data-video="decision-drawer">
       <div className="drawer-head"><div><p className="eyebrow">Analyse détaillée</p><h2>{formatDate(row.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h2></div><button onClick={onClose} aria-label="Fermer"><X /></button></div>
       <SignalBadge signal={row.signal} label={row.signalLabel} />
-      <div className="drawer-hero"><p>Action proposée</p><strong>{row.recommendation}</strong><span>Confiance du signal : {row.confidence} %</span></div>
+      <div className="drawer-hero"><p>Action proposée</p><strong>{row.recommendation}</strong><span data-video="decision-confidence">Confiance du signal : {row.confidence} %</span></div>
       <section><h3>Pourquoi cette recommandation ?</h3><p>{row.reason}</p></section>
       <div className="detail-grid">
         <div><span>Occupation</span><strong>{formatPercent(row.occupancy)}</strong><small>{row.roomsSold} chambres vendues</small></div>
@@ -604,11 +616,11 @@ function DetailDrawer({ row, decision, onClose, onDecision }: { row: AnalyzedDat
       </section>}
       <section className="guardrail"><ShieldCheck size={19} /><div><h3>Garde-fou</h3><p>RevPilot ne change aucun prix. L’hôtelier vérifie le contexte local avant d’accepter ou d’ignorer la recommandation.</p></div></section>
       <section className="decision-form">
-        <div><label htmlFor="decision-price">Prix décidé</label><div className="price-input"><input id="decision-price" type="number" min="0" value={price} onChange={(event) => setPrice(Number(event.target.value))} /><span>€</span></div><small>Prix actuel : {formatCurrency(row.currentPrice)} · proposition : {formatCurrency(proposedPrice)}</small></div>
+        <div><label htmlFor="decision-price">Prix décidé</label><div className="price-input"><input id="decision-price" data-video="decision-price-input" type="number" min="0" value={price} onChange={(event) => setPrice(Number(event.target.value))} /><span>€</span></div><small>Prix actuel : {formatCurrency(row.currentPrice)} · proposition : {formatCurrency(proposedPrice)}</small></div>
         <div><label htmlFor="decision-note">Note interne</label><textarea id="decision-note" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Ex. vérifier le groupe attendu avant diffusion…" /></div>
       </section>
       {decision && <p className="existing-decision"><CheckCircle2 size={15} /> Une décision existe déjà pour cette date. Une nouvelle validation la remplacera.</p>}
-      <div className="drawer-actions"><button className="btn secondary" onClick={() => decide('ignored')}>Ignorer</button><button className="btn secondary" onClick={() => decide('adjusted')}>Valider mon prix</button><button className="btn primary" onClick={() => decide('accepted', proposedPrice)}><Check size={16} /> Accepter</button></div>
+      <div className="drawer-actions"><button className="btn secondary" onClick={() => decide('ignored')}>Ignorer</button><button className="btn secondary" onClick={() => decide('adjusted')}>Valider mon prix</button><button className="btn primary" data-video="decision-accept" onClick={() => decide('accepted', proposedPrice)}><Check size={16} /> Accepter</button></div>
     </aside>
   </div>
 }
@@ -635,7 +647,7 @@ function AdvancedWorkspace({ rows, decisions, channelStats, preferences, onOpenS
         <div className="control-title"><span><BarChart3 size={18} /></span><div><h3>Distribution</h3><p>Répartition des réservations par canal.</p></div></div>
         <div className="channel-bars">{channelStats.map((item) => <div key={item.channel}><span>{item.channel}</span><i><em style={{ width: `${item.share * 100}%` }} /></i><strong>{formatPercent(item.share)}</strong></div>)}</div>
       </article>
-      <article className="panel control-panel">
+      <article className="panel control-panel" data-video="events-panel">
         <div className="control-title"><span><CalendarDays size={18} /></span><div><h3>Événements détectés</h3><p>Contexte local influençant la demande.</p></div></div>
         <div className="compact-list">{eventRows.map((row) => <div key={row.date}><span><strong>{row.eventName}</strong><small>{formatDate(row.date)} · impact {row.eventImpact}/100</small></span><SignalBadge signal={row.signal} label={row.signalLabel} /></div>)}{!eventRows.length && <p>Aucun événement majeur sur cet horizon.</p>}</div>
       </article>
@@ -663,7 +675,7 @@ function NotificationDrawer({ notifications, read, sending, onSend, onRead, onRe
   onSettings: () => void
   onClose: () => void
 }) {
-  return <div className="overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><aside className="drawer notification-drawer">
+  return <div className="overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><aside className="drawer notification-drawer" data-video="notifications-drawer">
     <div className="drawer-head"><div><p className="eyebrow">Centre d’alertes</p><h2>Notifications</h2></div><button onClick={onClose} aria-label="Fermer"><X /></button></div>
     <div className="notification-toolbar"><button onClick={onReadAll}><CheckCircle2 size={14} /> Tout marquer comme lu</button><button onClick={onSettings}><Settings2 size={14} /> Préférences</button>{notifications[0] && <button disabled={sending} onClick={() => onSend(notifications[0])}><Mail size={14} /> {sending ? 'Envoi…' : 'Envoyer l’alerte prioritaire'}</button>}</div>
     <div className="notification-list">{notifications.map((item) => <button key={item.id} className={`${item.level} ${read.includes(item.id) ? 'read' : ''}`} onClick={() => onRead(item.id)}><i /><span><small>{formatDate(item.date)}</small><strong>{item.title}</strong><p>{item.message}</p></span></button>)}</div>

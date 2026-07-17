@@ -84,6 +84,7 @@ h2 { margin: 5px 0 0; font-size: 18px; letter-spacing: -.4px; }
 .horizon-control { display: flex; align-items: center; gap: 6px; margin-left: auto; color: #4d7569; font-size: 8px; font-weight: 700; }
 .horizon-control select { height: 28px; padding: 0 24px 0 8px; border: 1px solid #bcded2; border-radius: 7px; color: #256f5c; background: rgba(255,255,255,.7); font-size: 9px; font-weight: 700; }
 .local-badge { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; padding: 5px 8px; border-radius: 20px; color: #277a65; background: rgba(255,255,255,.65); font-size: 8px; font-weight: 700; }
+.video-presentation-badge { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 6px 9px; border: 1px solid #d9e4f7; border-radius: 20px; color: #456188; background: rgba(255,255,255,.72); font-size: 8px; font-weight: 700; white-space: nowrap; }
 .event-api-strip { display: flex; align-items: center; justify-content: space-between; gap: 15px; max-width: 1460px; margin: -8px auto 18px; padding: 10px 13px; border: 1px solid #ead9b7; border-radius: 10px; background: #fff9ee; }
 .event-api-strip.live { border-color: #c8e4da; background: #f0faf6; }
 .event-api-strip.error { border-color: #efcece; background: #fff4f4; }

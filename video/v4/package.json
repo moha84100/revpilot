@@ -1,0 +1,19 @@
+{
+  "name": "revpilot-video-v4",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test scripts/*.test.mjs",
+    "validate:timeline": "node scripts/validate-timeline.mjs",
+    "voice": "node scripts/generate-voice.mjs",
+    "capture": "node scripts/capture-ui.mjs",
+    "compose": "node scripts/compose-video.mjs",
+    "validate:output": "node scripts/validate-output.mjs",
+    "build": "npm run validate:timeline && npm run capture && npm run compose && npm run validate:output"
+  },
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.30.0",
+    "dotenv": "^17.2.3",
+    "playwright": "^1.58.2"
+  }
+}

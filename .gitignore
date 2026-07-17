@@ -19,5 +19,9 @@ app/coverage/
 /build_crm_xlsx.py
 /build_notion_imports.py
 
-# Médias de production trop lourds pour GitHub
-/video/
+# Médias de production trop lourds pour GitHub. Les sources légères de la V4
+# restent versionnées pour rendre la vidéo reproductible.
+/video/*
+!/video/v4/
+!/video/v4/**
+!/video/SCRIPT_VIDEO_V4.md
