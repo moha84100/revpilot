@@ -1,0 +1,10 @@
+{
+  "name": "revpilot-video-v6",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "compose": "node scripts/compose-final.mjs",
+    "validate": "node scripts/validate-final.mjs",
+    "build": "npm run compose && npm run validate"
+  }
+}
