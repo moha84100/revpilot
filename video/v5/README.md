@@ -16,6 +16,22 @@ Les médias générés restent dans `generated/`, ignoré par Git. Les prompts, 
 
 Le compte et le prix doivent être relus avec la CLI avant chaque lot. Le plan pilote autorisé par le manifeste coûte au maximum 16 crédits : 7 crédits pour l’image de casting et 9 crédits pour une vidéo de six secondes. Aucun lot complet ne démarre avant validation du pilote.
 
+## Montage hybride disponible
+
+Le montage V5 intègre le plan Higgsfield validé au début de la démonstration V4 sans acheter de génération supplémentaire. Un dialogue bref entre les deux hôteliers introduit RevPilot, puis la narration Vivienne et les captures du produit reprennent avec un fondu audio/vidéo. Le plan joué porte la mention `Mise en situation fictive`, et le CTA complet de la V4 est conservé.
+
+```bash
+cd video/v5
+PATH='../../.tools/node/bin:/usr/bin:/bin:/usr/sbin:/sbin' npm run build
+```
+
+Fichiers produits dans `video/output/` :
+
+- `RevPilot_demo_V5_success_story.mp4` ;
+- `RevPilot_demo_V5_success_story_partage.mp4` ;
+- `RevPilot_demo_V5_success_story_miniature.png` ;
+- `RevPilot_demo_V5_success_story_controle.json`.
+
 ## Commande Higgsfield locale
 
 ```bash

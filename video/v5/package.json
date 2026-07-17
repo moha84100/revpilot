@@ -1,0 +1,11 @@
+{
+  "name": "revpilot-video-v5",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dialogue": "node scripts/generate-dialogue.mjs",
+    "compose": "node scripts/compose-final.mjs",
+    "validate": "node scripts/validate-final.mjs",
+    "build": "npm run dialogue && npm run compose && npm run validate"
+  }
+}

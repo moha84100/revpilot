@@ -34,5 +34,20 @@
     "maximumBlackFrameSeconds": 0.15,
     "fictionDisclosureRequired": true,
     "unprovenFinancialClaimsAllowed": false
+  },
+  "finalHybrid": {
+    "status": "completed",
+    "durationSeconds": 60,
+    "master": "../output/RevPilot_demo_V5_success_story.mp4",
+    "share": "../output/RevPilot_demo_V5_success_story_partage.mp4",
+    "thumbnail": "../output/RevPilot_demo_V5_success_story_miniature.png",
+    "qualityReport": "../output/RevPilot_demo_V5_success_story_controle.json",
+    "dialogue": [
+      "Tes résultats décrochent encore cette année ?",
+      "Oui. J'ajuste mes prix trop tard.",
+      "Tu ne connais pas RevPilot ?"
+    ],
+    "additionalHiggsfieldCredits": 0,
+    "qualityResult": "passed"
   }
 }
