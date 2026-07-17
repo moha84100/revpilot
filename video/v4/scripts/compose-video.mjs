@@ -13,7 +13,8 @@ const renderDir = `${v4Root}/renders`
 const tmpDir = `${v4Root}/tmp/composed`
 const ffmpeg = `${projectRoot}/.video-tools/node_modules/ffmpeg-static/ffmpeg`
 const node = `${projectRoot}/.tools/node/bin/node`
-const timeline = JSON.parse(await readFile(`${v4Root}/timeline.json`, 'utf8'))
+const timelineFile = process.env.REVPILOT_TIMELINE || 'timeline.json'
+const timeline = JSON.parse(await readFile(`${v4Root}/${timelineFile}`, 'utf8'))
 const metadata = JSON.parse(await readFile(`${v4Root}/captures/ui-flow-metadata.json`, 'utf8'))
 const metadataById = Object.fromEntries(metadata.scenes.map((scene) => [scene.id, scene]))
 
@@ -84,7 +85,8 @@ for (const [index, scene] of timeline.scenes.entries()) {
   } else {
     filters.push(`[${videoLabel}]null[v]`)
   }
-  filters.push(`[${audioInput}:a]apad=pad_dur=${scene.duration},atrim=0:${scene.duration},asetpts=PTS-STARTPTS[a]`)
+  const audioTempo = Number(process.env.REVPILOT_AUDIO_TEMPO || 1)
+  filters.push(`[${audioInput}:a]atempo=${audioTempo},apad=pad_dur=${scene.duration},atrim=0:${scene.duration},asetpts=PTS-STARTPTS[a]`)
 
   args.push(
     '-filter_complex', filters.join(';'), '-map', '[v]', '-map', '[a]',
@@ -96,18 +98,36 @@ for (const [index, scene] of timeline.scenes.entries()) {
 
 const concatPath = `${tmpDir}/clips.txt`
 await writeFile(concatPath, clips.map((clip) => `file '${clip.replaceAll("'", "'\\''")}'`).join('\n') + '\n')
-const masterName = voiced ? 'RevPilot_demo_V4_dynamique.mp4' : 'RevPilot_demo_V4_visuel_sans_voix.mp4'
+const masterName = process.env.REVPILOT_MASTER_NAME || (voiced ? 'RevPilot_demo_V4_dynamique.mp4' : 'RevPilot_demo_V4_visuel_sans_voix.mp4')
 const master = `${outputDir}/${masterName}`
-runFfmpeg(['-f', 'concat', '-safe', '0', '-i', concatPath, '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', master], 'l’assemblage final')
+const withAudioBed = process.env.REVPILOT_AUDIO_BED === '1'
+const assembled = withAudioBed ? `${tmpDir}/master-sans-ambiance.mp4` : master
+runFfmpeg(['-f', 'concat', '-safe', '0', '-i', concatPath, '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', assembled], 'l’assemblage final')
+
+const totalDuration = timeline.scenes.reduce((sum, scene) => sum + scene.duration, 0)
+if (withAudioBed) {
+  const fadeOut = Math.max(0, totalDuration - 1.5)
+  const bed = `sine=frequency=110:sample_rate=48000:duration=${totalDuration},volume=0.008[a];sine=frequency=164.81:sample_rate=48000:duration=${totalDuration},volume=0.006[b];sine=frequency=220:sample_rate=48000:duration=${totalDuration},volume=0.003[c];[a][b][c]amix=inputs=3:normalize=0,lowpass=f=650,afade=t=in:st=0:d=1.5,afade=t=out:st=${fadeOut}:d=1.5`
+  runFfmpeg([
+    '-i', assembled, '-f', 'lavfi', '-i', bed,
+    '-filter_complex', '[0:a][1:a]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[a]',
+    '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', master,
+  ], 'l’ajout de l’ambiance sonore')
+}
 
 if (voiced) {
-  runFfmpeg(['-i', master, '-vf', 'scale=1280:720', '-c:v', 'libx264', '-preset', 'medium', '-crf', '25', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', `${outputDir}/RevPilot_demo_V4_partage.mp4`], 'la version de partage')
+  const shareName = process.env.REVPILOT_SHARE_NAME || 'RevPilot_demo_V4_partage.mp4'
+  runFfmpeg(['-i', master, '-vf', 'scale=1280:720', '-c:v', 'libx264', '-preset', 'medium', '-crf', '25', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', `${outputDir}/${shareName}`], 'la version de partage')
 }
-runFfmpeg(['-ss', '8', '-i', master, '-frames:v', '1', '-update', '1', '-vf', 'scale=1280:720', `${outputDir}/RevPilot_demo_V4_miniature.png`], 'la miniature')
-await writeFile(`${outputDir}/RevPilot_demo_V4_etat.json`, `${JSON.stringify({
+const thumbnailName = process.env.REVPILOT_THUMBNAIL_NAME || 'RevPilot_demo_V4_miniature.png'
+runFfmpeg(['-ss', '8', '-i', master, '-frames:v', '1', '-update', '1', '-vf', 'scale=1280:720', `${outputDir}/${thumbnailName}`], 'la miniature')
+const stateName = process.env.REVPILOT_STATE_NAME || 'RevPilot_demo_V4_etat.json'
+await writeFile(`${outputDir}/${stateName}`, `${JSON.stringify({
   voiced,
   master: masterName,
-  duration: timeline.scenes.reduce((sum, scene) => sum + scene.duration, 0),
+  duration: totalDuration,
+  durationRange: withAudioBed ? [59, 61] : [60, 75],
+  audioBed: withAudioBed,
   contextVideos: timeline.scenes.filter((scene) => scene.source === 'hotel-broll' || scene.cutaway).map((scene) => scene.cutaway?.file ?? 'hotel-intro.mp4'),
 }, null, 2)}\n`)
 console.log(voiced ? `Vidéo V4 finale prête : ${master}` : `Pré-montage visuel prêt : ${master}. Ajoutez la voix ElevenLabs pour produire le master final.`)

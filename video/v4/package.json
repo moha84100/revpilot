@@ -7,9 +7,12 @@
     "validate:timeline": "node scripts/validate-timeline.mjs",
     "voice": "node scripts/generate-voice.mjs",
     "voice:local": "node scripts/generate-local-voice.mjs",
+    "timeline:compact": "node scripts/generate-compact-timeline.mjs",
     "capture": "node scripts/capture-ui.mjs",
     "compose": "node scripts/compose-video.mjs",
+    "compose:compact": "npm run timeline:compact && REVPILOT_TIMELINE=timeline-compact.json REVPILOT_MASTER_NAME=RevPilot_demo_V4_sans_blancs.mp4 REVPILOT_SHARE_NAME=RevPilot_demo_V4_sans_blancs_partage.mp4 REVPILOT_THUMBNAIL_NAME=RevPilot_demo_V4_sans_blancs_miniature.png REVPILOT_STATE_NAME=RevPilot_demo_V4_sans_blancs_etat.json REVPILOT_AUDIO_BED=1 REVPILOT_AUDIO_TEMPO=0.94 node scripts/compose-video.mjs",
     "validate:output": "node scripts/validate-output.mjs",
+    "validate:compact": "REVPILOT_STATE_FILE=RevPilot_demo_V4_sans_blancs_etat.json node scripts/validate-output.mjs && REVPILOT_STATE_FILE=RevPilot_demo_V4_sans_blancs_etat.json node scripts/validate-transitions.mjs",
     "build": "npm run validate:timeline && npm run capture && npm run compose && npm run validate:output",
     "build:local": "npm run validate:timeline && npm run voice:local && npm run compose && npm run validate:output"
   },
