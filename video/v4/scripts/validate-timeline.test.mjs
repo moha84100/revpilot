@@ -10,13 +10,19 @@ test('la timeline commerciale respecte tous les garde-fous', () => {
   assert.deepEqual(result.errors, [])
   assert.equal(timeline.scenes.length, 7)
   assert.ok(result.totalDuration >= 60 && result.totalDuration <= 75)
+  assert.deepEqual(
+    timeline.scenes.filter((scene) => scene.cutaway).map((scene) => scene.cutaway.file),
+    ['manager-decision.mp4', 'city-event.mp4', 'phone-alert.mp4'],
+  )
 })
 
 test('le validateur refuse les effets et apparitions excessifs', () => {
   const broken = structuredClone(timeline)
   broken.scenes[0].character.duration = 4
   broken.scenes[1].zooms[0].scale = 1.5
+  broken.scenes[3].cutaway.fade = 0.8
   const result = validateTimeline(broken)
   assert.ok(result.errors.some((error) => error.includes('trois secondes')))
   assert.ok(result.errors.some((error) => error.includes('135')))
+  assert.ok(result.errors.some((error) => error.includes('Fondu')))
 })

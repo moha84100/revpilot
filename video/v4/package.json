@@ -6,10 +6,12 @@
     "test": "node --test scripts/*.test.mjs",
     "validate:timeline": "node scripts/validate-timeline.mjs",
     "voice": "node scripts/generate-voice.mjs",
+    "voice:local": "node scripts/generate-local-voice.mjs",
     "capture": "node scripts/capture-ui.mjs",
     "compose": "node scripts/compose-video.mjs",
     "validate:output": "node scripts/validate-output.mjs",
-    "build": "npm run validate:timeline && npm run capture && npm run compose && npm run validate:output"
+    "build": "npm run validate:timeline && npm run capture && npm run compose && npm run validate:output",
+    "build:local": "npm run validate:timeline && npm run voice:local && npm run compose && npm run validate:output"
   },
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.30.0",

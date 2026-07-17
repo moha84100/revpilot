@@ -25,6 +25,7 @@ La clé est saisie de manière masquée. Le script crée le fichier privé `.env
 ```bash
 npm test
 npm run voice
+npm run voice:local
 npm run capture
 npm run compose
 npm run validate:output
@@ -33,3 +34,5 @@ npm run validate:output
 La capture attend l’application sur `http://127.0.0.1:4173/?videoPresentation=v4`. Les exports finaux sont écrits dans `../output/`.
 
 La voix est générée avec le modèle multilingue d’ElevenLabs, adapté à une narration française naturelle. Aucun remplacement automatique par une voix système n’est autorisé.
+
+`npm run voice:local` reproduit à la demande la voix féminine Vivienne utilisée dans l’ancienne vidéo appréciée. Cette variante ne demande aucune clé privée et recale chaque phrase sans en couper la fin.

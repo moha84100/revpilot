@@ -51,6 +51,10 @@ for (const [index, scene] of timeline.scenes.entries()) {
     baseFilter = zoomFilter(scene, meta.boxes)
   }
 
+  const cutawayInput = scene.cutaway ? args.filter((value) => value === '-i').length : null
+  if (scene.cutaway) {
+    args.push('-ss', '0', '-t', String(scene.cutaway.duration), '-i', `${videoRoot}/ai-clips/${scene.cutaway.file}`)
+  }
   const characterInput = scene.character ? args.filter((value) => value === '-i').length : null
   if (scene.character) args.push('-loop', '1', '-t', String(scene.duration), '-i', `${renderDir}/character-${scene.character.pose}.png`)
   const audioInput = args.filter((value) => value === '-i').length
@@ -59,11 +63,18 @@ for (const [index, scene] of timeline.scenes.entries()) {
 
   const filters = [`[0:v]${baseFilter},setpts=PTS-STARTPTS[base]`]
   let videoLabel = 'base'
+  if (scene.cutaway) {
+    const duration = scene.cutaway.duration
+    const fade = scene.cutaway.fade
+    filters.push(`[${cutawayInput}:v]fps=30,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,trim=duration=${duration},setpts=PTS-STARTPTS,format=yuva420p,fade=t=out:st=${duration - fade}:d=${fade}:alpha=1[cutaway]`)
+    filters.push(`[${videoLabel}][cutaway]overlay=0:0:enable='lt(t,${duration})'[withcutaway]`)
+    videoLabel = 'withcutaway'
+  }
   if (scene.character) {
     const start = scene.character.start
     const end = start + scene.character.duration
     filters.push(`[${characterInput}:v]scale=230:-1,format=rgba,setpts=PTS-STARTPTS[char]`)
-    filters.push(`[base][char]overlay=x=270:y=H-h-35:enable='between(t,${start},${end})'[withchar]`)
+    filters.push(`[${videoLabel}][char]overlay=x=270:y=H-h-35:enable='between(t,${start},${end})'[withchar]`)
     videoLabel = 'withchar'
   }
   if (scene.source !== 'cta') {
@@ -93,5 +104,10 @@ if (voiced) {
   runFfmpeg(['-i', master, '-vf', 'scale=1280:720', '-c:v', 'libx264', '-preset', 'medium', '-crf', '25', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', `${outputDir}/RevPilot_demo_V4_partage.mp4`], 'la version de partage')
 }
 runFfmpeg(['-ss', '8', '-i', master, '-frames:v', '1', '-update', '1', '-vf', 'scale=1280:720', `${outputDir}/RevPilot_demo_V4_miniature.png`], 'la miniature')
-await writeFile(`${outputDir}/RevPilot_demo_V4_etat.json`, `${JSON.stringify({ voiced, master: masterName, duration: timeline.scenes.reduce((sum, scene) => sum + scene.duration, 0) }, null, 2)}\n`)
+await writeFile(`${outputDir}/RevPilot_demo_V4_etat.json`, `${JSON.stringify({
+  voiced,
+  master: masterName,
+  duration: timeline.scenes.reduce((sum, scene) => sum + scene.duration, 0),
+  contextVideos: timeline.scenes.filter((scene) => scene.source === 'hotel-broll' || scene.cutaway).map((scene) => scene.cutaway?.file ?? 'hotel-intro.mp4'),
+}, null, 2)}\n`)
 console.log(voiced ? `Vidéo V4 finale prête : ${master}` : `Pré-montage visuel prêt : ${master}. Ajoutez la voix ElevenLabs pour produire le master final.`)
