@@ -1,0 +1,68 @@
+{
+  "version": "5.0",
+  "format": { "width": 1920, "height": 1080, "fps": 30, "aspectRatio": "16:9" },
+  "durationTarget": [58, 63],
+  "disclosure": "Mise en situation fictive",
+  "scenes": [
+    {
+      "id": "pnl-hook",
+      "duration": 7,
+      "source": "higgsfield",
+      "speaker": "directeur",
+      "dialogue": "Entre les coûts qui augmentent et les chambres vendues trop bas les soirs de forte demande, mon P&L décroche cette année.",
+      "subtitle": "Un P&L sous pression.",
+      "shot": "medium-two-shot"
+    },
+    {
+      "id": "manual-pricing",
+      "duration": 8,
+      "source": "higgsfield",
+      "speaker": "dialogue",
+      "dialogue": "Tu ajustes encore tes prix à la main ? — Oui… et souvent trop tard.",
+      "subtitle": "Les bonnes décisions arrivent trop tard.",
+      "shot": "shot-reverse-shot"
+    },
+    {
+      "id": "discover-revpilot",
+      "duration": 13,
+      "source": "higgsfield",
+      "speaker": "dialogue",
+      "dialogue": "Tu ne connais pas RevPilot ? — Non. Ça fait quoi exactement ? — Il analyse tes réservations, ton occupation, le rythme des ventes, l’historique et les événements de la ville. Ensuite, il te montre les décisions prioritaires.",
+      "subtitle": "RevPilot détecte les priorités.",
+      "shot": "laptop-reveal"
+    },
+    {
+      "id": "product-proof",
+      "duration": 15,
+      "source": "revpilot-capture",
+      "speaker": "directrice-voice-over",
+      "dialogue": "Avant, je découvrais les dates ratées après coup. Maintenant, je vois immédiatement où agir et pourquoi.",
+      "subtitle": "Une recommandation expliquée.",
+      "shot": "screen-demo"
+    },
+    {
+      "id": "human-control",
+      "duration": 10,
+      "source": "higgsfield-and-revpilot",
+      "speaker": "dialogue",
+      "dialogue": "Donc le logiciel change mes prix tout seul ? — Non. Il explique sa recommandation, mais c’est toujours toi qui décides.",
+      "subtitle": "Vous gardez le contrôle.",
+      "shot": "reaction-and-approval"
+    },
+    {
+      "id": "cta",
+      "duration": 8,
+      "source": "higgsfield-and-cta",
+      "speaker": "directeur",
+      "dialogue": "D’accord… là, je veux voir ce que ça donnerait sur mon hôtel.",
+      "subtitle": "Découvrez le potentiel de votre hôtel.",
+      "shot": "positive-reaction-to-cta"
+    }
+  ],
+  "cta": {
+    "title": "Demandez votre démonstration RevPilot.",
+    "phone": "07 55 68 32 85",
+    "email": "mohamed.echchkoubi@gmail.com",
+    "site": "moha84100.github.io/revpilot/"
+  }
+}

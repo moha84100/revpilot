@@ -1,0 +1,6 @@
+generated/
+audio/
+tmp/
+renders/
+captures/
+*.local.json

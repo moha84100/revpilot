@@ -1,0 +1,26 @@
+{
+  "pilot": {
+    "imageModel": "gpt_image_2",
+    "imageCreditsMaximum": 7,
+    "videoModel": "kling3_0_turbo",
+    "videoCreditsMaximum": 9,
+    "maximumTotalCredits": 16,
+    "duration": 6,
+    "resolution": "720p",
+    "aspectRatio": "16:9"
+  },
+  "agents": [
+    "script-and-compliance",
+    "casting-and-continuity",
+    "shot-director",
+    "dialogue-and-lipsync",
+    "editor",
+    "quality-control"
+  ],
+  "quality": {
+    "maximumSilenceSeconds": 1,
+    "maximumBlackFrameSeconds": 0.15,
+    "fictionDisclosureRequired": true,
+    "unprovenFinancialClaimsAllowed": false
+  }
+}
