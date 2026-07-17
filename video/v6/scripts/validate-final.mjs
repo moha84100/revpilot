@@ -45,6 +45,8 @@ const report = {
   resolution: '1920x1080',
   codecs: { video: 'h264', audio: 'aac' },
   transition: { type: 'hard-cut', timestamp: 15, qcDirectory: transitionFrames },
+  correctedPronunciation: ['RevPilot', 'trop tard'],
+  productZooms: ['potentiel', 'recommandation', 'validation humaine', 'événements'],
   blackSegments,
   longSilences,
   disclosure: 'Mise en situation fictive visible pendant le témoignage IA',
