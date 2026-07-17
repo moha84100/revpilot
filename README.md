@@ -2,6 +2,10 @@
 
 RevPilot est un prototype de revenue management pour hôtels. Il transforme les données de réservation en recommandations tarifaires explicables et tient compte de l'occupation, du rythme des réservations, du risque de surbooking et des événements locaux.
 
+**Démonstration publique : [ouvrir RevPilot](https://moha84100.github.io/revpilot/)**
+
+La démonstration GitHub Pages utilise les données fictives intégrées. Les connexions privées au PMS, aux événements en temps réel et aux notifications restent exécutées par le serveur local ou un futur serveur de production.
+
 Le projet comprend :
 
 - une interface simple pour les décisions quotidiennes ;
