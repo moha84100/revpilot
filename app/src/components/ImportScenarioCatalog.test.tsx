@@ -1,6 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ImportScenarioCatalog } from './ImportScenarioCatalog'
+
+afterEach(cleanup)
 
 describe('catalogue des scénarios', () => {
   it('affiche huit chargements et huit téléchargements accessibles', () => {

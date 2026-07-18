@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { analyzeData } from '../lib/analysis'
 import { parseCsvFile } from '../lib/csv'
@@ -25,8 +26,7 @@ describe('scénarios d’import', () => {
     })
 
     it(`${scenario.filename} passe par le parseur public`, async () => {
-      const url = new URL(`../../public/scenarios/${scenario.filename}`, import.meta.url)
-      const csv = readFileSync(url, 'utf8')
+      const csv = readFileSync(resolve(process.cwd(), 'public', 'scenarios', scenario.filename), 'utf8')
       const parsed = await parseCsvFile(new File([csv], scenario.filename, { type: 'text/csv' }))
       expect(parsed.rows).toHaveLength(scenario.horizon === 90 ? 90 : 21)
       expect(parsed.sourceName).toBe(scenario.filename)
