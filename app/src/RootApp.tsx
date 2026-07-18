@@ -13,7 +13,7 @@ export default function RootApp() {
     const robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]')
     const description = document.querySelector<HTMLMetaElement>('meta[name="description"]')
     if (experience === 'dashboard') {
-      document.title = 'Démonstration RevPilot — Pilotage hôtelier'
+      document.title = 'RevPilot — Pilotage hôtelier'
       robots?.setAttribute('content', 'noindex, nofollow')
     } else {
       document.title = 'Logiciel revenue management hôtel | RevPilot'

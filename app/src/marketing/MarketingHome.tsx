@@ -43,7 +43,7 @@ function ProductPreview() {
     </aside>
     <div className="preview-main">
       <div className="preview-top"><div><small>VENDREDI 18 JUILLET</small><strong>Les décisions qui comptent.</strong></div><span className="preview-avatar">ML</span></div>
-      <div className="preview-sync"><Check size={13} /><span><b>Données synchronisées</b> · Scénario de démonstration</span></div>
+      <div className="preview-sync"><Check size={13} /><span><b>Données synchronisées</b> · Exemple hôtelier</span></div>
       <div className="preview-kpis"><article><small>Occupation moyenne</small><strong>78,4 %</strong><span>+ 6 pts vs N−1</span></article><article className="featured"><small>Potentiel estimé</small><strong>+ 8 420 €</strong><span>À confirmer par l’hôtelier</span></article><article><small>Dates à surveiller</small><strong>7</strong><span>3 prioritaires aujourd’hui</span></article></div>
       <div className="preview-analysis">
         <article className="preview-chart"><div className="preview-panel-head"><span><small>RYTHME DE RÉSERVATION</small><b>Une demande qui s’accélère</b></span><TrendingUp size={16} /></div><DemandCurve /><div className="chart-labels"><span>15 juil.</span><span>30 juil.</span><span>15 août</span></div></article>
@@ -60,7 +60,7 @@ export default function MarketingHome() {
     <header className="marketing-header">
       <a href="./" className="marketing-logo" aria-label="RevPilot, accueil"><Brand /></a>
       <nav aria-label="Navigation principale"><a href="#methode">Méthode</a><a href="#produit">Produit</a><a href="#confiance">Confiance</a></nav>
-      <a className="marketing-header-cta" href="./app/">Explorer la démo <ArrowRight size={15} /></a>
+      <a className="marketing-header-cta" href="./app/">Accéder à RevPilot <ArrowRight size={15} /></a>
     </header>
 
     <main id="contenu">
@@ -70,10 +70,10 @@ export default function MarketingHome() {
           <p className="marketing-eyebrow"><span /> Revenue management pour hôtels indépendants</p>
           <h1>Voir plus tôt.<br />Comprendre vraiment.<br /><em>Décider sereinement.</em></h1>
           <p className="hero-lead">RevPilot transforme vos données de réservation en recommandations tarifaires claires, expliquées et toujours soumises à votre décision.</p>
-          <div className="hero-actions"><a className="marketing-btn primary" href="./app/">Explorer la démo <ArrowRight size={17} /></a><a className="marketing-btn ghost" href="#methode">Voir comment ça fonctionne</a></div>
+          <div className="hero-actions"><a className="marketing-btn primary" href="./app/">Accéder à RevPilot <ArrowRight size={17} /></a><a className="marketing-btn ghost" href="#methode">Voir comment ça fonctionne</a></div>
           <div className="hero-assurances"><span><ShieldCheck size={14} /> Lecture seule</span><span><Check size={14} /> Décision humaine</span><span><LockKeyhole size={14} /> Données maîtrisées</span></div>
         </div>
-        <div className="hero-preview-wrap"><span className="preview-label"><i /> Scénario de démonstration</span><ProductPreview /></div>
+        <div className="hero-preview-wrap"><span className="preview-label"><i /> Données d’exemple</span><ProductPreview /></div>
       </section>
 
       <section className="marketing-trustline" aria-label="Capacités principales"><span>Occupation</span><i /><span>Pickup</span><i /><span>Année précédente</span><i /><span>Événements locaux</span><i /><span>Décision expliquée</span></section>
@@ -107,19 +107,19 @@ export default function MarketingHome() {
       </section>
 
       <section className="trust-section section-shell" id="confiance">
-        <Reveal className="trust-copy"><p className="marketing-eyebrow light"><span /> La confiance par la clarté</p><h2>RevPilot conseille.<br />L’hôtelier décide.</h2><p>Aucune boîte noire ne devrait piloter seule le revenu d’un hôtel. Chaque signal reste traçable, chaque hypothèse visible et chaque décision réversible.</p><a className="marketing-btn champagne" href="./app/">Tester avec les données de démonstration <ArrowRight size={17} /></a></Reveal>
+        <Reveal className="trust-copy"><p className="marketing-eyebrow light"><span /> La confiance par la clarté</p><h2>RevPilot conseille.<br />L’hôtelier décide.</h2><p>Aucune boîte noire ne devrait piloter seule le revenu d’un hôtel. Chaque signal reste traçable, chaque hypothèse visible et chaque décision réversible.</p><a className="marketing-btn champagne" href="./app/">Voir RevPilot en situation <ArrowRight size={17} /></a></Reveal>
         <div className="trust-list">
-          <Reveal delay={80}><article><ShieldCheck /><span><h3>Connexion PMS en lecture seule</h3><p>Le prototype récupère les données utiles sans envoyer de tarif au PMS.</p></span></article></Reveal>
+          <Reveal delay={80}><article><ShieldCheck /><span><h3>Connexion PMS en lecture seule</h3><p>RevPilot récupère les données utiles sans envoyer de tarif au PMS.</p></span></article></Reveal>
           <Reveal delay={160}><article><LineChart /><span><h3>Recommandations explicables</h3><p>La raison, le contexte et la confiance accompagnent chaque action proposée.</p></span></article></Reveal>
           <Reveal delay={240}><article><LockKeyhole /><span><h3>Contrôle humain obligatoire</h3><p>Aucun prix n’est modifié automatiquement. Vous acceptez, ajustez ou ignorez.</p></span></article></Reveal>
         </div>
       </section>
 
-      <section className="integration-section section-shell"><Reveal><p className="marketing-eyebrow"><span /> Connecteurs présents dans le prototype</p><div className="integration-row"><span>Mews</span><span>Ticketmaster</span><span>OpenAgenda</span><span>PredictHQ</span><span>Brevo</span></div><p className="integration-note">Leur disponibilité en direct dépend de la configuration des clés et services associés.</p></Reveal></section>
+      <section className="integration-section section-shell"><Reveal><p className="marketing-eyebrow"><span /> Connecteurs disponibles</p><div className="integration-row"><span>Mews</span><span>Ticketmaster</span><span>OpenAgenda</span><span>PredictHQ</span><span>Brevo</span></div><p className="integration-note">Leur disponibilité en direct dépend de la configuration des clés et services associés.</p></Reveal></section>
 
-      <section className="final-cta section-shell"><Reveal><span className="cta-orbit" aria-hidden="true" /><p className="marketing-eyebrow light"><span /> Prêt à regarder les bonnes dates ?</p><h2>Découvrez ce que vos réservations essaient déjà de vous dire.</h2><p>Explorez le scénario hôtelier complet et suivez une recommandation de la détection jusqu’à la décision.</p><a className="marketing-btn champagne" href="./app/">Explorer la démo RevPilot <ArrowRight size={17} /></a></Reveal></section>
+      <section className="final-cta section-shell"><Reveal><span className="cta-orbit" aria-hidden="true" /><p className="marketing-eyebrow light"><span /> Prêt à regarder les bonnes dates ?</p><h2>Découvrez ce que vos réservations essaient déjà de vous dire.</h2><p>Ouvrez le tableau de bord et suivez une recommandation de la détection jusqu’à la décision.</p><a className="marketing-btn champagne" href="./app/">Accéder à RevPilot <ArrowRight size={17} /></a></Reveal></section>
     </main>
 
-    <footer className="marketing-footer"><Brand /><p>Prototype consultatif de revenue management hôtelier.</p><span>© 2026 RevPilot</span></footer>
+    <footer className="marketing-footer"><Brand /><p>Pilotage consultatif de revenue management hôtelier.</p><span>© 2026 RevPilot</span></footer>
   </div>
 }

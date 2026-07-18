@@ -7,8 +7,10 @@ import {
   TrendingUp, Upload, X,
 } from 'lucide-react'
 import { createSyntheticHotelDataset, reservationsToCsv } from './data/syntheticReservations'
+import { type ImportScenario } from './data/importScenarios'
 import { analyzeData, summarize } from './lib/analysis'
-import { exampleCsv, parseCsvFile } from './lib/csv'
+import { parseCsvFile } from './lib/csv'
+import { createImportComparison, type ImportComparison } from './lib/importComparison'
 import { formatCurrency, formatDate, formatPercent } from './lib/format'
 import type { AnalyzedDate, Signal } from './types'
 import { enrichWithLiveEvents } from './events/enrichment'
@@ -25,6 +27,8 @@ import {
 } from './lib/workflow'
 import { VideoPresentationBadge } from './presentation/VideoPresentationBadge'
 import { VIDEO_REFERENCE_DATE, isVideoPresentation } from './presentation/videoPresentation'
+import { ImportScenarioCatalog, scenarioHref } from './components/ImportScenarioCatalog'
+import { ImportComparisonPanel } from './components/ImportComparisonPanel'
 import './styles.css'
 import './premium.css'
 
@@ -64,7 +68,7 @@ function DashboardApp() {
   const videoPresentation = useMemo(() => isVideoPresentation(window.location.search), [])
   const fileInput = useRef<HTMLInputElement>(null)
   const [rows, setRows] = useState(() => analyzeData(initialDataset.dailyData, videoPresentation ? VIDEO_REFERENCE_DATE : undefined))
-  const [sourceName, setSourceName] = useState('Scénario hôtelier volumétrique')
+  const [sourceName, setSourceName] = useState('Données d’exemple RevPilot')
   const [recordCount, setRecordCount] = useState(initialDataset.reservations.length)
   const [rawReservations, setRawReservations] = useState(initialDataset.reservations)
   const [liveEvents, setLiveEvents] = useState<CityEvent[]>([])
@@ -90,6 +94,9 @@ function DashboardApp() {
   const [pmsError, setPmsError] = useState('')
   const [pmsWarnings, setPmsWarnings] = useState<string[]>([])
   const [activePms, setActivePms] = useState<string | null>(null)
+  const [comparison, setComparison] = useState<ImportComparison | null>(null)
+  const [loadingScenario, setLoadingScenario] = useState<string | null>(null)
+  const [activeScenario, setActiveScenario] = useState<string | null>(null)
 
   const analysisRows = useMemo(() => rows.slice(0, Math.min(horizon, rows.length)), [rows, horizon])
   const summary = useMemo(() => summarize(analysisRows), [analysisRows])
@@ -102,6 +109,7 @@ function DashboardApp() {
   )
   const visibleRows = filter === 'all' ? analysisRows : analysisRows.filter((row) => row.signal === filter)
   const occupancyGap = summary.averageOccupancy - summary.lastYearAverageOccupancy
+  const todayLabel = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())
   const topInsight = alerts[0]
   const priorityIncreaseDate = alerts.find((row) => row.signal === 'increase')?.date
   const presentationAlerts = videoPresentation && priorityIncreaseDate
@@ -242,35 +250,65 @@ function DashboardApp() {
     showToast(`Recommandation ${action}. La décision est ajoutée à l’historique.`)
   }
 
-  const resetDemo = () => {
-    setRows(analyzeData(liveEvents.length ? enrichWithLiveEvents(initialDataset.dailyData, liveEvents) : initialDataset.dailyData))
-    setSourceName('Scénario hôtelier volumétrique')
-    setRecordCount(initialDataset.reservations.length)
-    setRawReservations(initialDataset.reservations)
+  const applyDataset = (parsedRows: Parameters<typeof analyzeData>[0], nextSourceName: string, nextRecordCount: number, nextHorizon: number, scenarioId: string | null = null) => {
+    const nextRows = analyzeData(liveEvents.length ? enrichWithLiveEvents(parsedRows, liveEvents) : parsedRows, new Date())
+    const visibleHorizon = Math.min(nextHorizon, nextRows.length)
+    setComparison(createImportComparison(summary, summarize(nextRows.slice(0, visibleHorizon)), analysisRows.length, visibleHorizon, nextSourceName))
+    setRows(nextRows)
+    setSourceName(nextSourceName)
+    setRecordCount(nextRecordCount)
+    setRawReservations([])
+    setActivePms(null)
+    setPmsWarnings([])
     setFilter('all')
-    setHorizon(30)
-    showToast('La démonstration a été réinitialisée.')
+    setSelected(null)
+    setHorizon(visibleHorizon)
+    setActiveScenario(scenarioId)
+    dispatchCriticalAlert(nextRows)
   }
 
-  const handleFile = async (file?: File) => {
-    if (!file) return
+  const resetExampleData = () => {
+    const nextRows = analyzeData(liveEvents.length ? enrichWithLiveEvents(initialDataset.dailyData, liveEvents) : initialDataset.dailyData)
+    setComparison(createImportComparison(summary, summarize(nextRows.slice(0, 30)), analysisRows.length, 30, 'Données d’exemple RevPilot'))
+    setRows(nextRows)
+    setSourceName('Données d’exemple RevPilot')
+    setRecordCount(initialDataset.reservations.length)
+    setRawReservations(initialDataset.reservations)
+    setActivePms(null)
+    setPmsWarnings([])
+    setFilter('all')
+    setSelected(null)
+    setHorizon(30)
+    setActiveScenario(null)
+    showToast('Les données d’exemple ont été restaurées.')
+  }
+
+  const handleFile = async (file?: File, options?: { sourceName?: string; horizon?: number; scenarioId?: string }) => {
+    if (!file) return false
     try {
       const parsed = await parseCsvFile(file)
-      const nextRows = analyzeData(liveEvents.length ? enrichWithLiveEvents(parsed.rows, liveEvents) : parsed.rows, new Date())
-      setRows(nextRows)
-      setSourceName(parsed.sourceName)
-      setRecordCount(parsed.recordCount ?? parsed.rows.length)
-      setRawReservations([])
-      setActivePms(null)
-      setPmsWarnings([])
-      setFilter('all')
-      setHorizon(Math.min(30, parsed.rows.length))
-      dispatchCriticalAlert(nextRows)
+      applyDataset(parsed.rows, options?.sourceName ?? parsed.sourceName, parsed.recordCount ?? parsed.rows.length, options?.horizon ?? 30, options?.scenarioId ?? null)
       showToast(`${parsed.rows.length} dates importées et analysées.`)
+      return true
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Import impossible.')
+      return false
     } finally {
       if (fileInput.current) fileInput.current.value = ''
+    }
+  }
+
+  const loadScenario = async (scenario: ImportScenario) => {
+    setLoadingScenario(scenario.id)
+    try {
+      const response = await fetch(new URL(scenarioHref(scenario), window.location.href))
+      if (!response.ok) throw new Error(`Fichier indisponible (${response.status}).`)
+      const content = await response.text()
+      await handleFile(new File([content], scenario.filename, { type: 'text/csv' }), { sourceName: scenario.title, horizon: scenario.horizon, scenarioId: scenario.id })
+    } catch {
+      showToast('Ce scénario n’a pas pu être chargé. Téléchargez-le puis importez-le manuellement.')
+    } finally {
+      setLoadingScenario(null)
     }
   }
 
@@ -286,6 +324,7 @@ function DashboardApp() {
       setRawReservations([])
       setActivePms(provider)
       setPmsWarnings(payload.warnings || [])
+      setActiveScenario(null)
       setFilter('all')
       setHorizon(Math.min(30, payload.rows.length))
       dispatchCriticalAlert(nextRows)
@@ -333,7 +372,7 @@ function DashboardApp() {
 
         <div className="hotel-switcher">
           <span className="hotel-avatar"><Hotel size={17} /></span>
-          <span><strong>Grand Hôtel Démo</strong><small>48 chambres · Orange</small></span>
+          <span><strong>Mon hôtel</strong><small>48 chambres · Orange</small></span>
           <ChevronRight size={15} />
         </div>
 
@@ -356,17 +395,17 @@ function DashboardApp() {
 
         <div className="privacy-card">
           <ShieldCheck size={17} />
-          <div><strong>Données protégées</strong><p>Cette démo analyse le fichier localement. Aucun tarif n’est modifié.</p></div>
+          <div><strong>Données protégées</strong><p>RevPilot analyse le fichier localement. Aucun tarif n’est modifié.</p></div>
         </div>
 
-        <div className="sidebar-footer"><span></span> Prototype de validation · v0.1</div>
+        <div className="sidebar-footer"><span></span> Pilotage consultatif · RevPilot</div>
       </aside>
 
       <main id="top" className={demoParams.get('demoSection') === 'advanced' ? 'capture-advanced' : ''}>
         <header className="topbar">
           <button className="mobile-menu" onClick={() => setMobileNav(true)} aria-label="Ouvrir le menu"><Menu /></button>
           <div className="topbar-title">
-            <p className="eyebrow">Mardi 14 juillet 2026</p>
+            <p className="eyebrow">{todayLabel}</p>
             <h1>Voici les décisions qui comptent aujourd’hui.</h1>
           </div>
           <div className="top-actions">
@@ -376,7 +415,7 @@ function DashboardApp() {
             </div>
             <button className="notification-button" data-video="notifications-trigger" onClick={() => setNotificationOpen(true)} aria-label={`${unreadCount} notifications non lues`}><Bell size={17} />{unreadCount > 0 && <b>{unreadCount}</b>}</button>
             <button className="btn secondary" onClick={() => setPresentationOpen(true)}><Presentation size={16} /> Présenter</button>
-            <button className="btn secondary compact" onClick={resetDemo} title="Recharger la démo"><RefreshCw size={16} /></button>
+            <button className="btn secondary compact" onClick={resetExampleData} title="Restaurer les données d’exemple" aria-label="Restaurer les données d’exemple"><RefreshCw size={16} /></button>
             <button className="btn primary" onClick={() => fileInput.current?.click()}><Upload size={16} /> Importer un export PMS</button>
             <input ref={fileInput} type="file" accept=".csv,text/csv" hidden onChange={(event) => handleFile(event.target.files?.[0])} />
           </div>
@@ -385,12 +424,14 @@ function DashboardApp() {
         <div className="source-banner" id="data">
           <span className="source-check"><Check size={15} /></span>
           <div><strong>{sourceName}</strong><p>{recordCount.toLocaleString('fr-FR')} enregistrements · {rows.length} dates disponibles · recommandations recalculées automatiquement</p></div>
-          <div className="horizon-control"><span>Horizon</span><select value={horizon} onChange={(event) => setHorizon(Number(event.target.value))}>{[30,60,90,180].filter((value) => value <= rows.length).map((value) => <option key={value} value={value}>{value} jours</option>)}</select></div>
+          <div className="horizon-control"><span>Horizon</span><select value={horizon} onChange={(event) => setHorizon(Number(event.target.value))}>{Array.from(new Set([Math.min(30, rows.length),60,90,180])).filter((value) => value > 0 && value <= rows.length).map((value) => <option key={value} value={value}>{value} jours</option>)}</select></div>
           {videoPresentation ? <VideoPresentationBadge /> : <span className="local-badge"><ShieldCheck size={13} /> {activePms ? 'Lecture PMS sécurisée' : 'Analyse locale'}</span>}
         </div>
 
+        {comparison && <ImportComparisonPanel comparison={comparison} onClose={() => setComparison(null)} />}
+
         {!videoPresentation && <section className={`pms-strip ${activePms ? 'connected' : ''}`}>
-          <div className="pms-strip-title"><Database size={17} /><span><strong>{activePms === 'mews' ? 'Mews connecté' : activePms === 'demo' ? 'PMS de démonstration connecté' : 'Aucun PMS connecté'}</strong><small>{activePms ? 'Données synchronisées en lecture seule · aucun prix envoyé au PMS' : 'Connectez Mews pour remplacer l’import manuel du fichier CSV.'}</small></span></div>
+          <div className="pms-strip-title"><Database size={17} /><span><strong>{activePms === 'mews' ? 'Mews connecté' : activePms === 'demo' ? 'Source d’exemple active' : 'Aucun PMS connecté'}</strong><small>{activePms ? 'Données synchronisées en lecture seule · aucun prix envoyé au PMS' : 'Connectez Mews pour remplacer l’import manuel du fichier CSV.'}</small></span></div>
           <div className="pms-strip-actions">
             {pmsWarnings.length > 0 && <span className="pms-warning">{pmsWarnings[0]}</span>}
             <button className="btn secondary" onClick={() => setPmsOpen(true)}><Database size={15} /> {activePms ? 'Gérer la connexion' : 'Connecter un PMS'}</button>
@@ -500,16 +541,17 @@ function DashboardApp() {
           onOpenSettings={() => setSettingsOpen(true)}
         />}
 
-        <section className="import-help section">
+        <ImportScenarioCatalog loadingId={loadingScenario} activeId={activeScenario} onLoad={loadScenario} />
+
+        <section className="import-help section technical-dataset">
           <div className="help-icon"><FileSpreadsheet size={22} /></div>
-          <div><p className="eyebrow">Données de test</p><h2>Le scénario complet et un exemple d’import sont disponibles.</h2><p>Le grand fichier contient les réservations individuelles. Le petit CSV permet de tester rapidement l’import journalier.</p></div>
+          <div><p className="eyebrow">Jeu technique</p><h2>Export brut des réservations</h2><p>Ce fichier documente la source volumétrique, mais il n’est pas importable dans cette version. Utilisez les huit CSV journaliers ci-dessus pour tester l’import.</p></div>
           <div className="download-actions">
-            {rawReservations.length > 0 && <button className="btn primary" onClick={() => downloadText(reservationsToCsv(rawReservations), 'reservations-fictives-revpilot.csv')}><Download size={16} /> {rawReservations.length.toLocaleString('fr-FR')} réservations</button>}
-            <button className="btn secondary" onClick={() => downloadText(`\ufeff${exampleCsv}`, 'exemple-export-pms.csv')}><Download size={16} /> Exemple journalier</button>
+            <button className="btn secondary" onClick={() => downloadText(reservationsToCsv(initialDataset.reservations), 'reservations-fictives-revpilot.csv')}><Download size={16} /> Jeu brut — non importable</button>
           </div>
         </section>
 
-        <footer>RevPilot · Prototype consultatif de revenue management hôtelier · Aucune modification automatique des prix</footer>
+        <footer>RevPilot · Pilotage consultatif de revenue management hôtelier · Aucune modification automatique des prix</footer>
       </main>
 
       {selected && <DetailDrawer row={selected} decision={decisions[selected.date]} onClose={() => setSelected(null)} onDecision={saveDecision} />}
@@ -545,8 +587,8 @@ function PmsConnectionModal({ status, syncing, error, onSync, onImport, onClose 
           : <div className="pms-command"><strong>Sur le Mac :</strong><code>./configure-pms.sh</code><small>Puis relancez RevPilot.</small></div>}
       </article>
       <article className="pms-option">
-        <span className="pms-logo demo">D</span><div><h3>Connexion de démonstration</h3><p>Teste tout le parcours sans utiliser les données d’un véritable hôtel.</p><span className="connection-state ready"><i />Disponible immédiatement</span></div>
-        <button className="btn secondary" disabled={Boolean(syncing)} onClick={() => onSync('demo')}><RefreshCw size={15} className={syncing === 'demo' ? 'spin' : ''} /> Tester</button>
+        <span className="pms-logo demo">E</span><div><h3>Environnement d’exemple</h3><p>Parcourt la synchronisation sans utiliser les données d’un véritable hôtel.</p><span className="connection-state ready"><i />Disponible immédiatement</span></div>
+        <button className="btn secondary" disabled={Boolean(syncing)} onClick={() => onSync('demo')}><RefreshCw size={15} className={syncing === 'demo' ? 'spin' : ''} /> Charger</button>
       </article>
       <article className="pms-option compact-option">
         <span className="pms-logo csv"><FileSpreadsheet size={18} /></span><div><h3>Autre PMS</h3><p>Cloudbeds, Opera, RoomRaccoon… conservez temporairement l’import CSV pendant le développement du connecteur correspondant.</p></div>
@@ -708,7 +750,7 @@ function NotificationSettings({ preferences, provider, sending, onTest, onSave, 
   const [draft, setDraft] = useState(preferences)
   const toggle = (key: keyof NotificationPreferences) => setDraft((current) => ({ ...current, [key]: !current[key] }))
   return <div className="overlay modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><section className="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title">
-    <button className="modal-close" onClick={onClose} aria-label="Fermer" autoFocus><X /></button><p className="eyebrow">Préférences</p><h2 id="settings-dialog-title">Qui reçoit quoi, et comment ?</h2><p className="settings-intro">Les coordonnées sont conservées dans cette démonstration. Les messages externes passent côté serveur par Brevo ; les clés API ne sont jamais envoyées au navigateur.</p>
+    <button className="modal-close" onClick={onClose} aria-label="Fermer" autoFocus><X /></button><p className="eyebrow">Préférences</p><h2 id="settings-dialog-title">Qui reçoit quoi, et comment ?</h2><p className="settings-intro">Les coordonnées sont conservées dans ce navigateur. Les messages externes passent côté serveur par Brevo ; les clés API ne sont jamais envoyées au navigateur.</p>
     <h3>État des connexions réelles</h3><div className="delivery-status-grid">
       {(['email','sms','whatsapp'] as ExternalChannel[]).map((channel) => { const state = provider?.channels[channel]; const target = channel === 'email' ? draft.emailAddress : channel === 'sms' ? draft.phoneNumber : draft.whatsappNumber; return <div key={channel} className={state?.configured ? 'ready' : ''}><span><i /><strong>{channel === 'email' ? 'E-mail' : channel === 'sms' ? 'SMS' : 'WhatsApp'}</strong><small>{state?.detail || 'Serveur indisponible'}</small></span><button disabled={!state?.configured || Boolean(sending)} onClick={() => onTest(channel, target)}>{sending === channel ? 'Envoi…' : 'Tester'}</button></div> })}
     </div>
@@ -741,7 +783,7 @@ function PresentationModal({ onClose, onImport }: { onClose: () => void; onImpor
   return <div className="overlay modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
     <section className="presentation-modal" role="dialog" aria-modal="true" aria-labelledby="presentation-dialog-title">
       <button className="modal-close" onClick={onClose} aria-label="Fermer" autoFocus><X /></button>
-      <p className="eyebrow">Discours de démonstration</p>
+      <p className="eyebrow">Présentation du produit</p>
       <h2 id="presentation-dialog-title">Ce que tu présentes à l’hôtel en 30 secondes</h2>
       <div className="presentation-step"><span><Icon size={27} /></span><div><h3>{current.title}</h3><p>{current.text}</p></div></div>
       <div className="step-dots">{steps.map((_, index) => <button key={index} className={index === step ? 'active' : ''} onClick={() => setStep(index)} aria-label={`Étape ${index + 1}`} />)}</div>
@@ -749,7 +791,7 @@ function PresentationModal({ onClose, onImport }: { onClose: () => void; onImpor
         <button className="btn secondary" onClick={onClose}>Revenir au tableau</button>
         {step < steps.length - 1
           ? <button className="btn primary" onClick={() => setStep(step + 1)}>Étape suivante <ArrowRight size={16} /></button>
-          : <button className="btn primary" onClick={onImport}>Tester un fichier <Upload size={16} /></button>}
+          : <button className="btn primary" onClick={onImport}>Importer un fichier <Upload size={16} /></button>}
       </div>
       <div className="pitch-box"><CircleHelp size={16} /><p><strong>La phrase à retenir :</strong> « RevPilot vous indique où regarder chaque matin, pourquoi cette date compte et quelle action envisager. »</p></div>
     </section>

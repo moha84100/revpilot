@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build && node scripts/postbuild.mjs && node scripts/verify-seo.mjs",
     "preview": "vite preview",
     "generate:data": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/generateSyntheticData.ts",
+    "generate:scenarios": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/generateImportScenarios.ts",
     "test": "vitest run && node --test server/utils.test.mjs server/pms/normalize.test.mjs server/notifications/delivery.test.mjs",
     "test:watch": "vitest"
   },

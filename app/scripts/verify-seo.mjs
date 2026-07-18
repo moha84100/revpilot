@@ -22,7 +22,7 @@ const jsonLd = home.match(/<script type="application\/ld\+json">([\s\S]*?)<\/scr
 assert(Boolean(jsonLd), 'structured data block')
 JSON.parse(jsonLd)
 
-assert(dashboard.includes('<title>Démonstration RevPilot — Pilotage hôtelier</title>'), 'dashboard title')
+assert(dashboard.includes('<title>RevPilot — Pilotage hôtelier</title>'), 'dashboard title')
 assert(dashboard.includes('content="noindex, nofollow"'), 'dashboard noindex')
 assert(dashboard.includes('rel="canonical" href="https://moha84100.github.io/revpilot/app/"'), 'dashboard canonical')
 assert(dashboard.includes('="../assets/'), 'dashboard asset paths')

@@ -287,7 +287,7 @@ body { margin: 0; min-width: 320px; background: #f4f0e7; }
 @media (max-width: 640px) {
   .marketing-header { min-height: 74px; }
   .marketing-header-cta { min-height: 40px; padding: 0 13px; font-size: 0; }
-  .marketing-header-cta::before { font-size: 11px; content: 'Démo'; }
+  .marketing-header-cta::before { font-size: 11px; content: 'Ouvrir'; }
   .marketing-hero { padding-top: 125px; padding-bottom: 30px; }
   .hero-copy h1 { font-size: 48px; letter-spacing: -2.5px; }
   .hero-lead { font-size: 15px; }
