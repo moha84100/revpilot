@@ -25,6 +25,8 @@ import {
 } from './lib/workflow'
 import { VideoPresentationBadge } from './presentation/VideoPresentationBadge'
 import { VIDEO_REFERENCE_DATE, isVideoPresentation } from './presentation/videoPresentation'
+import './styles.css'
+import './premium.css'
 
 type Filter = 'all' | Signal
 
@@ -49,7 +51,15 @@ function downloadText(content: string, filename: string, type = 'text/csv;charse
   URL.revokeObjectURL(url)
 }
 
-function App() {
+function useEscapeToClose(onClose: () => void) {
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [onClose])
+}
+
+function DashboardApp() {
   const demoParams = useMemo(() => new URLSearchParams(window.location.search), [])
   const videoPresentation = useMemo(() => isVideoPresentation(window.location.search), [])
   const fileInput = useRef<HTMLInputElement>(null)
@@ -314,7 +324,7 @@ function App() {
     <div className="app-shell">
       <aside className={`sidebar ${mobileNav ? 'mobile-open' : ''}`}>
         <div className="brand-row">
-          <a className="brand" href="#top" aria-label="RevPilot, accueil">
+          <a className="brand" href="../" aria-label="RevPilot, revenir au site public">
             <span className="brand-mark"><BarChart3 size={19} /></span>
             <span>RevPilot</span>
           </a>
@@ -474,7 +484,7 @@ function App() {
                     <td><strong>{formatCurrency(row.adr)}</strong></td>
                     <td><SignalBadge signal={row.signal} label={row.signalLabel} /></td>
                     <td><strong>{row.recommendation}</strong></td>
-                    <td><ChevronRight size={16} /></td>
+                    <td><button className="row-open" onClick={(event) => { event.stopPropagation(); setSelected(row) }} aria-label={`Ouvrir la recommandation du ${formatDate(row.date)}`}><ChevronRight size={16} /></button></td>
                   </tr>
                 ))}
               </tbody>
@@ -520,10 +530,11 @@ function PmsConnectionModal({ status, syncing, error, onSync, onImport, onClose 
   onImport: () => void
   onClose: () => void
 }) {
+  useEscapeToClose(onClose)
   const mews = status?.providers.find((provider) => provider.id === 'mews')
-  return <div className="overlay modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><section className="settings-modal pms-modal">
-    <button className="modal-close" onClick={onClose} aria-label="Fermer"><X /></button>
-    <p className="eyebrow">Connexion sécurisée</p><h2>Connecter les réservations de l’hôtel</h2>
+  return <div className="overlay modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><section className="settings-modal pms-modal" role="dialog" aria-modal="true" aria-labelledby="pms-dialog-title">
+    <button className="modal-close" onClick={onClose} aria-label="Fermer" autoFocus><X /></button>
+    <p className="eyebrow">Connexion sécurisée</p><h2 id="pms-dialog-title">Connecter les réservations de l’hôtel</h2>
     <p className="settings-intro">Les jetons API restent sur le serveur. Cette première connexion est uniquement en lecture : RevPilot ne peut ni modifier une réservation ni envoyer un prix.</p>
     {error && <div className="pms-error"><AlertTriangle size={16} />{error}</div>}
     <div className="pms-options">
@@ -578,6 +589,7 @@ function AlertCard({ row, decision, onClick, videoId }: { row: AnalyzedDate; dec
 }
 
 function DetailDrawer({ row, decision, onClose, onDecision }: { row: AnalyzedDate; decision?: PricingDecision; onClose: () => void; onDecision: (decision: PricingDecision) => void }) {
+  useEscapeToClose(onClose)
   const proposedPrice = Math.max(0, row.currentPrice + row.recommendedDelta)
   const [price, setPrice] = useState(decision?.decidedPrice ?? proposedPrice)
   const [note, setNote] = useState(decision?.note ?? '')
@@ -592,8 +604,8 @@ function DetailDrawer({ row, decision, onClose, onDecision }: { row: AnalyzedDat
     decidedAt: new Date().toISOString(),
   })
   return <div className="overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-    <aside className="drawer" data-video="decision-drawer">
-      <div className="drawer-head"><div><p className="eyebrow">Analyse détaillée</p><h2>{formatDate(row.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h2></div><button onClick={onClose} aria-label="Fermer"><X /></button></div>
+    <aside className="drawer" data-video="decision-drawer" role="dialog" aria-modal="true" aria-labelledby="decision-dialog-title">
+      <div className="drawer-head"><div><p className="eyebrow">Analyse détaillée</p><h2 id="decision-dialog-title">{formatDate(row.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h2></div><button onClick={onClose} aria-label="Fermer" autoFocus><X /></button></div>
       <SignalBadge signal={row.signal} label={row.signalLabel} />
       <div className="drawer-hero"><p>Action proposée</p><strong>{row.recommendation}</strong><span data-video="decision-confidence">Confiance du signal : {row.confidence} %</span></div>
       <section><h3>Pourquoi cette recommandation ?</h3><p>{row.reason}</p></section>
@@ -675,8 +687,9 @@ function NotificationDrawer({ notifications, read, sending, onSend, onRead, onRe
   onSettings: () => void
   onClose: () => void
 }) {
-  return <div className="overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><aside className="drawer notification-drawer" data-video="notifications-drawer">
-    <div className="drawer-head"><div><p className="eyebrow">Centre d’alertes</p><h2>Notifications</h2></div><button onClick={onClose} aria-label="Fermer"><X /></button></div>
+  useEscapeToClose(onClose)
+  return <div className="overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><aside className="drawer notification-drawer" data-video="notifications-drawer" role="dialog" aria-modal="true" aria-labelledby="notifications-dialog-title">
+    <div className="drawer-head"><div><p className="eyebrow">Centre d’alertes</p><h2 id="notifications-dialog-title">Notifications</h2></div><button onClick={onClose} aria-label="Fermer" autoFocus><X /></button></div>
     <div className="notification-toolbar"><button onClick={onReadAll}><CheckCircle2 size={14} /> Tout marquer comme lu</button><button onClick={onSettings}><Settings2 size={14} /> Préférences</button>{notifications[0] && <button disabled={sending} onClick={() => onSend(notifications[0])}><Mail size={14} /> {sending ? 'Envoi…' : 'Envoyer l’alerte prioritaire'}</button>}</div>
     <div className="notification-list">{notifications.map((item) => <button key={item.id} className={`${item.level} ${read.includes(item.id) ? 'read' : ''}`} onClick={() => onRead(item.id)}><i /><span><small>{formatDate(item.date)}</small><strong>{item.title}</strong><p>{item.message}</p></span></button>)}</div>
     <div className="delivery-explainer"><ShieldCheck size={17} /><p><strong>Protection anti-spam :</strong> doublons supprimés, plages silencieuses respectées et surbooking prioritaire. L’envoi externe nécessite un canal configuré.</p></div>
@@ -691,10 +704,11 @@ function NotificationSettings({ preferences, provider, sending, onTest, onSave, 
   onSave: (preferences: NotificationPreferences) => void | Promise<void>
   onClose: () => void
 }) {
+  useEscapeToClose(onClose)
   const [draft, setDraft] = useState(preferences)
   const toggle = (key: keyof NotificationPreferences) => setDraft((current) => ({ ...current, [key]: !current[key] }))
-  return <div className="overlay modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><section className="settings-modal">
-    <button className="modal-close" onClick={onClose} aria-label="Fermer"><X /></button><p className="eyebrow">Préférences</p><h2>Qui reçoit quoi, et comment ?</h2><p className="settings-intro">Les coordonnées sont conservées dans cette démonstration. Les messages externes passent côté serveur par Brevo ; les clés API ne sont jamais envoyées au navigateur.</p>
+  return <div className="overlay modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><section className="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title">
+    <button className="modal-close" onClick={onClose} aria-label="Fermer" autoFocus><X /></button><p className="eyebrow">Préférences</p><h2 id="settings-dialog-title">Qui reçoit quoi, et comment ?</h2><p className="settings-intro">Les coordonnées sont conservées dans cette démonstration. Les messages externes passent côté serveur par Brevo ; les clés API ne sont jamais envoyées au navigateur.</p>
     <h3>État des connexions réelles</h3><div className="delivery-status-grid">
       {(['email','sms','whatsapp'] as ExternalChannel[]).map((channel) => { const state = provider?.channels[channel]; const target = channel === 'email' ? draft.emailAddress : channel === 'sms' ? draft.phoneNumber : draft.whatsappNumber; return <div key={channel} className={state?.configured ? 'ready' : ''}><span><i /><strong>{channel === 'email' ? 'E-mail' : channel === 'sms' ? 'SMS' : 'WhatsApp'}</strong><small>{state?.detail || 'Serveur indisponible'}</small></span><button disabled={!state?.configured || Boolean(sending)} onClick={() => onTest(channel, target)}>{sending === channel ? 'Envoi…' : 'Tester'}</button></div> })}
     </div>
@@ -715,6 +729,7 @@ function SettingToggle({ icon, title, description, enabled, onClick, input }: { 
 }
 
 function PresentationModal({ onClose, onImport }: { onClose: () => void; onImport: () => void }) {
+  useEscapeToClose(onClose)
   const [step, setStep] = useState(0)
   const steps = [
     { icon: Upload, title: '1. L’hôtel importe son export PMS', text: '« Vous gardez votre outil actuel. Vous déposez simplement votre fichier de réservations. »' },
@@ -724,10 +739,10 @@ function PresentationModal({ onClose, onImport }: { onClose: () => void; onImpor
   const current = steps[step]
   const Icon = current.icon
   return <div className="overlay modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-    <section className="presentation-modal">
-      <button className="modal-close" onClick={onClose} aria-label="Fermer"><X /></button>
+    <section className="presentation-modal" role="dialog" aria-modal="true" aria-labelledby="presentation-dialog-title">
+      <button className="modal-close" onClick={onClose} aria-label="Fermer" autoFocus><X /></button>
       <p className="eyebrow">Discours de démonstration</p>
-      <h2>Ce que tu présentes à l’hôtel en 30 secondes</h2>
+      <h2 id="presentation-dialog-title">Ce que tu présentes à l’hôtel en 30 secondes</h2>
       <div className="presentation-step"><span><Icon size={27} /></span><div><h3>{current.title}</h3><p>{current.text}</p></div></div>
       <div className="step-dots">{steps.map((_, index) => <button key={index} className={index === step ? 'active' : ''} onClick={() => setStep(index)} aria-label={`Étape ${index + 1}`} />)}</div>
       <div className="presentation-actions">
@@ -741,4 +756,4 @@ function PresentationModal({ onClose, onImport }: { onClose: () => void; onImpor
   </div>
 }
 
-export default App
+export default DashboardApp

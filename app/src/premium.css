@@ -1,0 +1,213 @@
+/* Quiet Luxury product layer. Existing selectors are retained to preserve behavior. */
+.app-shell {
+  --navy: #172b24;
+  --blue: #8d6d38;
+  --blue-pale: #f1e8d8;
+  --green: #39705c;
+  --green-pale: #e7f0e9;
+  --amber: #8b652b;
+  --amber-pale: #f4ead6;
+  --red: #a64943;
+  --muted: #756f65;
+  --line: #ddd6c9;
+  --panel: #fbf9f4;
+  --shadow: 0 18px 55px rgba(28, 47, 39, .07);
+  min-height: 100vh;
+  color: #17231f;
+  background: #f1ece2;
+  font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  font-size: 16px;
+}
+
+.app-shell h1,.app-shell h2,.app-shell .kpi-value,.app-shell .drawer-hero strong,.app-shell .detail-grid strong {
+  font-family: "Iowan Old Style", Baskerville, "Times New Roman", serif;
+  font-weight: 500;
+}
+.app-shell button,.app-shell a { -webkit-tap-highlight-color: transparent; }
+.app-shell button:focus-visible,.app-shell a:focus-visible,.app-shell input:focus-visible,.app-shell select:focus-visible,.app-shell textarea:focus-visible { outline: 3px solid #b99656; outline-offset: 3px; }
+
+.app-shell .sidebar {
+  width: 262px; padding: 30px 20px 22px; color: #e8eee9;
+  background: radial-gradient(circle at 10% 5%,rgba(194,160,99,.11),transparent 28%),linear-gradient(180deg,#10271f 0%,#18352a 100%);
+  box-shadow: 15px 0 60px rgba(23,43,36,.08);
+}
+.app-shell .brand { padding: 0 7px; font-size: 20px; letter-spacing: -.6px; }
+.app-shell .brand-mark { width: 36px; height: 36px; border-radius: 50% 50% 50% 12px; color: #173026; background: #d6bd89; box-shadow: 0 9px 25px rgba(0,0,0,.18); }
+.app-shell .hotel-switcher { margin: 37px 0 29px; padding: 13px; border-color: rgba(255,255,255,.1); border-radius: 3px 15px 3px 3px; background: rgba(255,255,255,.055); }
+.app-shell .hotel-switcher strong { font-size: 12px; }.app-shell .hotel-switcher small { font-size: 9px; }
+.app-shell .hotel-avatar { border-radius: 50% 50% 50% 9px; color: #173026; background: #d6bd89; }
+.app-shell .sidebar nav { gap: 5px; }
+.app-shell .nav-item { min-height: 46px; padding: 0 13px; border-radius: 3px 12px 3px 3px; color: #aebfb7; font-size: 12px; }
+.app-shell .nav-item:hover,.app-shell .nav-item.active { color: white; background: rgba(214,189,137,.11); }
+.app-shell .nav-item.active { box-shadow: inset 2px 0 #d6bd89; }
+.app-shell .nav-item b { color: #173026; background: #d6bd89; }
+.app-shell .presentation-card { padding: 14px; border-color: rgba(214,189,137,.18); border-radius: 3px 14px 3px 3px; background: rgba(214,189,137,.07); }
+.app-shell .presentation-card strong { font-size: 11px; }.app-shell .presentation-card small { font-size: 9px; }
+.app-shell .presentation-icon { color: #d6bd89; background: rgba(255,255,255,.06); }
+.app-shell .privacy-card { border-radius: 3px 13px 3px 3px; background: rgba(255,255,255,.045); }
+.app-shell .privacy-card strong { font-size: 10px; }.app-shell .privacy-card p { font-size: 9px; }
+.app-shell .sidebar-footer { color: #82958c; font-size: 9px; }
+
+.app-shell > main { margin-left: 262px; padding: 35px 42px 28px; }
+.app-shell .topbar { margin-bottom: 25px; }
+.app-shell .eyebrow { color: #87714a; font-size: 10px; letter-spacing: 1.35px; }
+.app-shell h1 { margin-top: 7px; font-size: clamp(29px,2.7vw,40px); letter-spacing: -1.35px; }
+.app-shell h2 { font-size: 24px; letter-spacing: -.7px; }
+.app-shell .mode-switch { min-height: 44px; padding: 4px; border-color: #d9d2c6; border-radius: 100px; background: #fbf9f4; }
+.app-shell .mode-switch button { min-width: 72px; border-radius: 100px; font-size: 10px; }
+.app-shell .mode-switch button.active { color: #fff; background: #173026; }
+.app-shell .notification-button { width: 44px; height: 44px; border-color: #d9d2c6; border-radius: 50%; color: #5f685f; background: #fbf9f4; }
+.app-shell .notification-button b { border-color: #f1ece2; }
+.app-shell .btn { min-height: 44px; padding: 0 16px; border-radius: 100px; font-size: 11px; }
+.app-shell .btn.primary { background: #204438; box-shadow: 0 9px 24px rgba(31,68,56,.2); }
+.app-shell .btn.primary:hover { box-shadow: 0 13px 30px rgba(31,68,56,.27); }
+.app-shell .btn.secondary { color: #5e625c; border-color: #d7d0c4; background: #fbf9f4; }
+
+.app-shell .source-banner,.app-shell .pms-strip,.app-shell .event-api-strip { border-radius: 3px 13px 3px 3px; }
+.app-shell .source-banner { padding: 13px 15px; border-color: #c9d8cc; background: #e8f0e9; }
+.app-shell .source-banner strong { font-size: 11px; }.app-shell .source-banner p { font-size: 9px; }
+.app-shell .source-check { background: #39705c; }
+.app-shell .horizon-control { font-size: 9px; }.app-shell .horizon-control select { height: 32px; font-size: 10px; }
+.app-shell .pms-strip { padding: 13px 15px; border-color: #d9d2c6; background: rgba(251,249,244,.78); }
+.app-shell .pms-strip.connected { border-color: #c7d8cc; background: #edf3ee; }
+.app-shell .pms-strip-title strong,.app-shell .event-api-title strong { font-size: 10px; }
+.app-shell .pms-strip-title small,.app-shell .event-api-title small { font-size: 9px; }
+.app-shell .event-api-strip { padding: 12px 15px; border-color: #ded1b9; background: #f7f0e3; }
+.app-shell .provider-list > span { padding: 6px 9px; border-color: #dfd2bd; font-size: 8px; }
+
+.app-shell .kpi-grid { gap: 15px; }
+.app-shell .kpi-card,.app-shell .panel { border-color: #ddd6c9; border-radius: 3px 18px 3px 3px; background: #fbf9f4; box-shadow: var(--shadow); }
+.app-shell .kpi-card { min-height: 160px; padding: 21px; transition: transform .24s ease,box-shadow .24s ease,border-color .24s ease; }
+.app-shell .kpi-card:hover { border-color: #cab994; box-shadow: 0 24px 62px rgba(28,47,39,.11); transform: translateY(-3px); }
+.app-shell .kpi-card.featured { color: white; border-color: #23493b; background: linear-gradient(145deg,#18372d,#285143); }
+.app-shell .kpi-card.featured .kpi-label,.app-shell .kpi-card.featured p { color: rgba(255,255,255,.64); }
+.app-shell .kpi-label { color: #746f66; font-size: 11px; }
+.app-shell .kpi-icon { width: 32px; height: 32px; border-radius: 50% 50% 50% 8px; }
+.app-shell .kpi-icon.blue,.app-shell .kpi-icon.purple,.app-shell .kpi-icon.amber { color: #886a38; background: #f1e8d8; }
+.app-shell .kpi-icon.green { color: #356b56; background: #e1ece5; }
+.app-shell .kpi-value { margin-top: 16px; font-size: 31px; letter-spacing: -1px; }
+.app-shell .kpi-card p { font-size: 10px; }
+.app-shell .operational-metric { padding: 14px 16px; border-color: #ded7cb; border-radius: 3px 12px 3px 3px; background: rgba(251,249,244,.68); }
+.app-shell .operational-metric > span,.app-shell .operational-metric small { font-size: 9px; }
+.app-shell .operational-metric strong { font-family: "Iowan Old Style",Baskerville,serif; font-size: 19px; font-weight: 500; }
+
+.app-shell .section { margin-top: 34px; }
+.app-shell .section-header { margin-bottom: 16px; }
+.app-shell .link-button { color: #795f35; font-size: 11px; }
+.app-shell .alert-list { gap: 10px; }
+.app-shell .alert-card { min-height: 88px; padding: 15px 17px; border-color: #ddd6c9; border-left: 3px solid #b18c4e; border-radius: 3px 14px 3px 3px; background: #fbf9f4; box-shadow: 0 8px 24px rgba(28,47,39,.035); }
+.app-shell .alert-card:hover { border-color: #c9b98f; box-shadow: 0 16px 36px rgba(28,47,39,.09); transform: translateY(-2px); }
+.app-shell .alert-card.overbook { border-color: #e3bfbc; border-left-color: #a64943; background: #fff8f5; }
+.app-shell .date-tile { border-color: #ddd6c9; }
+.app-shell .date-tile b { color: #173026; font-family: "Iowan Old Style",Baskerville,serif; font-size: 24px; font-weight: 500; }
+.app-shell .date-tile small,.app-shell .alert-metric small,.app-shell .alert-reason small,.app-shell .alert-action small { font-size: 9px; }
+.app-shell .alert-metric b,.app-shell .alert-reason b,.app-shell .alert-action b { font-size: 11px; }
+.app-shell .alert-action { border-radius: 3px 9px 3px 3px; background: #f1e8d8; }
+.app-shell .alert-action b { color: #72592f; }
+.app-shell .boost .alert-action { background: #f4ead6; }.app-shell .decrease .alert-action { background: #f5e8dd; }
+.app-shell .confidence small { font-size: 9px; }.app-shell .confidence em { background: #39705c; }
+
+.app-shell .analytics-grid { gap: 16px; }
+.app-shell .panel { padding: 22px; }
+.app-shell .chart-container { height: 280px; }
+.app-shell .insight-panel { padding: 25px; border-radius: 3px 19px 3px 3px; background: linear-gradient(145deg,#173128,#285044); }
+.app-shell .spark-icon { color: #d6bd89; background: rgba(255,255,255,.08); }
+.app-shell .insight-panel h2 { color: white; font-size: 25px; }
+.app-shell .insight-panel > p:not(.eyebrow) { font-size: 11px; }.app-shell .insight-panel > button { color: #d6bd89; font-size: 10px; }
+.app-shell .insight-foot { font-size: 9px; }
+
+.app-shell .filters { min-height: 40px; padding: 4px; border-color: #d9d2c6; border-radius: 100px; background: #fbf9f4; }
+.app-shell .filters button { min-width: 63px; padding: 0 10px; border-radius: 100px; font-size: 9px; }
+.app-shell .filters button.active { color: #fff; background: #315d4d; }
+.app-shell .table-wrap { border-color: #ddd6c9; border-radius: 3px 16px 3px 3px; background: #fbf9f4; box-shadow: var(--shadow); }
+.app-shell th { padding: 13px 14px; color: #716b62; background: #f5f1e9; font-size: 9px; }
+.app-shell td { padding: 13px 14px; border-color: #e5dfd4; color: #40453f; font-size: 11px; }
+.app-shell .row-open { display: grid; width: 44px; height: 44px; margin: -12px; place-items: center; border: 0; border-radius: 50%; color: #72796f; background: transparent; cursor: pointer; }
+.app-shell .row-open:hover { color: #173026; background: #eee8dc; }
+.app-shell td small { font-size: 9px; }.app-shell tbody tr:hover { background: #f7f3eb; }
+.app-shell .event-pill { color: #476b5c; background: #e6efe9; }
+.app-shell .event-pill.previous { color: #795d35; background: #f3eadb; }
+.app-shell .mini-bar i { background: #547d6c; }
+.app-shell .signal { padding: 6px 8px; font-size: 8px; }
+.app-shell .signal.increase { color: #6f5428; background: #f1e6d1; }.app-shell .signal.maintain { color: #5e675f; background: #e9ece7; }
+
+.app-shell .import-help { padding: 21px; border-color: #d4c7ad; border-radius: 3px 16px 3px 3px; background: linear-gradient(135deg,#f8f4ec,#eae4d8); }
+.app-shell .help-icon { color: #846638; border-radius: 50% 50% 50% 11px; background: #fbf9f4; box-shadow: 0 9px 25px rgba(95,76,45,.1); }
+.app-shell .import-help h2 { font-size: 19px; }.app-shell .import-help p:not(.eyebrow) { font-size: 10px; }
+.app-shell footer { color: #8e887d; font-size: 9px; }
+
+.app-shell .overlay { background: rgba(10,28,22,.52); backdrop-filter: blur(7px); }
+.app-shell .drawer { width: min(520px,100%); padding: 31px; background: #fbf9f4; box-shadow: -25px 0 70px rgba(15,36,29,.2); }
+.app-shell .drawer-head h2 { font-size: 25px; }.app-shell .drawer-head button,.app-shell .modal-close { width: 40px; height: 40px; border-radius: 50%; }
+.app-shell .drawer-hero { border-radius: 3px 15px 3px 3px; background: linear-gradient(135deg,#1b3b30,#315f4f); }
+.app-shell .drawer-hero p,.app-shell .drawer-hero span { color: rgba(255,255,255,.62); font-size: 10px; }
+.app-shell .drawer-hero strong { font-size: 25px; }
+.app-shell .drawer section h3 { font-size: 13px; }.app-shell .drawer section p { font-size: 11px; }
+.app-shell .detail-grid > div { padding: 15px; border-color: #ded7cb; border-radius: 3px 10px 3px 3px; background: #f5f1e9; }
+.app-shell .detail-grid span,.app-shell .detail-grid small { font-size: 9px; }.app-shell .detail-grid strong { font-size: 20px; }
+.app-shell .guardrail { border-radius: 3px 11px 3px 3px; background: #e6efe8; }
+.app-shell .event-comparison,.app-shell .decision-form { border-color: #d9d1c3; border-radius: 3px 12px 3px 3px; background: #f5f1e9; }
+.app-shell .decision-form label { font-size: 10px; }.app-shell .decision-form input { height: 44px; }.app-shell .decision-form textarea { min-height: 82px; }
+.app-shell .decision-form input:focus,.app-shell .decision-form textarea:focus,.app-shell .setting-row input:focus { border-color: #8e7040; box-shadow: 0 0 0 3px rgba(142,112,64,.12); }
+
+.app-shell .advanced-badge { color: #6f552d; background: #f0e5d1; }
+.app-shell .control-title > span,.app-shell .setting-icon { color: #7d6133; background: #f1e7d6; }
+.app-shell .control-title h3 { font-size: 13px; }.app-shell .control-title p,.app-shell .rule-row { font-size: 9px; }
+.app-shell .channel-bars em { background: linear-gradient(90deg,#3e6d5b,#8bae9f); }
+.app-shell .settings-modal,.app-shell .presentation-modal { border: 1px solid #d9d1c4; border-radius: 3px 20px 3px 3px; background: #fbf9f4; }
+.app-shell .settings-modal > h2,.app-shell .presentation-modal > h2 { font-family: "Iowan Old Style",Baskerville,serif; font-weight: 500; }
+.app-shell .presentation-step { border-radius: 3px 15px 3px 3px; background: linear-gradient(135deg,#173128,#2b5446); }
+.app-shell .presentation-step > span { color: #d6bd89; }.app-shell .presentation-step p { color: rgba(255,255,255,.66); }
+.app-shell .step-dots button { position: relative; width: 44px; height: 44px; background: transparent; }
+.app-shell .step-dots button::after { position: absolute; top: 50%; left: 50%; width: 7px; height: 7px; border-radius: 20px; background: #d7d2c8; content: ''; transform: translate(-50%,-50%); transition: width .2s ease,background .2s ease; }
+.app-shell .step-dots button.active { width: 44px; background: transparent; }
+.app-shell .step-dots button.active::after { width: 22px; background: #856739; }
+.app-shell .toggle { width: 44px; height: 28px; padding: 4px; }
+.app-shell .toggle i { width: 20px; height: 20px; }
+.app-shell .toggle.on i { transform: translateX(16px); }
+.app-shell .toast { border-radius: 3px 12px 3px 3px; background: #173128; }
+
+.app-shell .topbar { animation: premiumReveal .6s cubic-bezier(.2,.7,.2,1) both; }
+.app-shell .source-banner { animation: premiumReveal .6s .06s cubic-bezier(.2,.7,.2,1) both; }
+.app-shell .pms-strip { animation: premiumReveal .6s .12s cubic-bezier(.2,.7,.2,1) both; }
+.app-shell .event-api-strip { animation: premiumReveal .6s .18s cubic-bezier(.2,.7,.2,1) both; }
+.app-shell .kpi-card { animation: premiumReveal .65s cubic-bezier(.2,.7,.2,1) both; }
+.app-shell .kpi-card:nth-child(1) { animation-delay: .18s; }.app-shell .kpi-card:nth-child(2) { animation-delay: .24s; }.app-shell .kpi-card:nth-child(3) { animation-delay: .3s; }.app-shell .kpi-card:nth-child(4) { animation-delay: .36s; }
+.app-shell .alert-card { animation: premiumReveal .55s cubic-bezier(.2,.7,.2,1) both; }
+.app-shell .alert-card:nth-child(1) { animation-delay: .1s; }.app-shell .alert-card:nth-child(2) { animation-delay: .16s; }.app-shell .alert-card:nth-child(3) { animation-delay: .22s; }.app-shell .alert-card:nth-child(4) { animation-delay: .28s; }
+
+@keyframes premiumReveal { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 850px) {
+  .app-shell .sidebar { width: 244px; }
+  .app-shell > main { margin-left: 0; padding: 24px 20px; }
+  .app-shell .mobile-menu { width: 44px; height: 44px; border-color: #d8d1c5; border-radius: 50%; color: #173026; background: #fbf9f4; }
+}
+
+@media (max-width: 590px) {
+  .app-shell > main { padding: 18px 14px; }
+  .app-shell h1 { font-size: 28px; }
+  .app-shell h2 { font-size: 21px; }
+  .app-shell .kpi-card { min-height: 145px; }
+  .app-shell .kpi-value { font-size: 29px; }
+  .app-shell .top-actions .btn.primary { flex-basis: 100%; }
+  .app-shell .alert-card { padding: 14px; }
+  .app-shell .drawer { padding: 25px 18px; }
+  .app-shell .table-wrap table { table-layout: fixed; }
+  .app-shell .table-wrap th:nth-child(2),.app-shell .table-wrap td:nth-child(2),
+  .app-shell .table-wrap th:nth-child(4),.app-shell .table-wrap td:nth-child(4),
+  .app-shell .table-wrap th:nth-child(5),.app-shell .table-wrap td:nth-child(5),
+  .app-shell .table-wrap th:nth-child(7),.app-shell .table-wrap td:nth-child(7) { display: none; }
+  .app-shell .table-wrap th,.app-shell .table-wrap td { padding: 11px 7px; }
+  .app-shell .table-wrap th:nth-child(1) { width: 28%; }
+  .app-shell .table-wrap th:nth-child(3) { width: 28%; }
+  .app-shell .table-wrap th:nth-child(6) { width: 31%; }
+  .app-shell .table-wrap th:nth-child(8) { width: 13%; }
+  .app-shell .row-open { margin: -10px; }
+  .app-shell .occupancy-cell { min-width: 0; }
+  .app-shell .mini-bar { display: block; width: 100%; margin: 6px 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell *,.app-shell *::before,.app-shell *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-delay: 0ms !important; transition-duration: .001ms !important; }
+}
